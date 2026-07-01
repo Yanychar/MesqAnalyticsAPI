@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.idea/
+.vscode/
+prisma/dev.db
+
+README.md
+
+.env.docker
+.env
+.env.local
+
+*.log
+*.tmp
+.DS_Store

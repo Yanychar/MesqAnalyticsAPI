@@ -1,0 +1,19 @@
+@baseUrl = http://localhost:3020
+@patientsDateFrom = 2026-04-01
+@patientsDateTo = 2026-05-31
+@patientsLocationId = 1
+@patientsFormat = json
+@patientsSaveLog = true
+
+### Patients request with editable filters
+GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&location_id={{patientsLocationId}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
+Accept: application/json
+
+### Min Patients request
+GET {{baseUrl}}/clinicminds/patients?format={{patientsFormat}}
+Accept: application/json
+
+### Patients request with date filter
+GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
+Accept: application/json
+

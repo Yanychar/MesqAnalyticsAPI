@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ApiRequestLog {
+  id           String           @id @default(cuid())
+  operationId  String
+  requestPath  String
+  queryParams  Json
+  requestedAt  DateTime         @default(now())
+  completedAt  DateTime?
+  status       ApiRequestStatus @default(RUNNING)
+  error        String?
+  responseSize Int?
+
+  @@index([operationId, requestedAt])
+  @@index([status, requestedAt])
+}
+
+enum ApiRequestStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}

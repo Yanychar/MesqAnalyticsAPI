@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:3020
+
+### App help
+GET {{baseUrl}}/help
+Accept: application/json
+
+### MySQL connection check
+GET {{baseUrl}}/health/mysql
+Accept: application/json
+
+### Clinicminds API spec summary
+GET {{baseUrl}}/clinicminds/spec
+Accept: application/json
