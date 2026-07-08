@@ -17,7 +17,7 @@ export class ClinicmindsRequestLogService {
     });
   }
 
-  async succeed(logId: string, responseSize: number) {
+  async succeed(logId: bigint, responseSize: number) {
     await this.prisma.apiRequestLog.update({
       where: { id: logId },
       data: {
@@ -28,7 +28,7 @@ export class ClinicmindsRequestLogService {
     });
   }
 
-  async fail(logId: string, error: unknown) {
+  async fail(logId: bigint, error: unknown) {
     await this.prisma.apiRequestLog.update({
       where: { id: logId },
       data: {

@@ -1,19 +1,29 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
+import { ClinicmindsAppointmentsService } from './clinicminds-appointments.service';
+import { ClinicmindsOnlineBookingsService } from './clinicminds-online-bookings.service';
 import { ClinicmindsClient } from './clinicminds.client';
 import { ClinicmindsPatientsService } from './clinicminds-patients.service';
 import { ClinicmindsRequestLogService } from './clinicminds-request-log.service';
+import { ClinicmindsSyncService } from './clinicminds-sync.service';
 import {
   ClinicmindsRequestDto,
   ClinicmindsRequestQueryDto,
 } from './dto/clinicminds-request.dto';
+import {
+  ClinicmindsSyncBatchDto,
+  ClinicmindsSyncDto,
+} from './dto/clinicminds-sync.dto';
 
 @Controller('clinicminds')
 export class ClinicmindsController {
   constructor(
     private readonly clinicmindsClient: ClinicmindsClient,
+    private readonly clinicmindsAppointmentsService: ClinicmindsAppointmentsService,
+    private readonly clinicmindsOnlineBookingsService: ClinicmindsOnlineBookingsService,
     private readonly clinicmindsRequestLogService: ClinicmindsRequestLogService,
     private readonly clinicmindsPatientsService: ClinicmindsPatientsService,
+    private readonly clinicmindsSyncService: ClinicmindsSyncService,
   ) {}
 
   @Get('spec')
@@ -31,6 +41,55 @@ export class ClinicmindsController {
     return this.clinicmindsClient.getReportDefinition(operationId);
   }
 
+  @Get('sync/entities')
+  listSyncEntities() {
+    return this.clinicmindsSyncService.listSyncEntities();
+  }
+
+  @Get('sync/runs')
+  listSyncRuns(
+    @Query('entityKey') entityKey?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.clinicmindsSyncService.listRecentRuns(
+      entityKey,
+      limit ? Number(limit) : undefined,
+    );
+  }
+
+  @Get('raw')
+  listRawRecords(
+    @Query('entityKey') entityKey?: string,
+    @Query('updateNeeded') updateNeeded?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.clinicmindsSyncService.listRawRecords(
+      entityKey,
+      updateNeeded === undefined ? undefined : updateNeeded === 'true',
+      limit ? Number(limit) : undefined,
+    );
+  }
+
+  @Post('sync')
+  syncBatch(@Body() body: ClinicmindsSyncBatchDto) {
+    return this.clinicmindsSyncService.runBatch({
+      entityKeys: body.entityKeys,
+      format: body.format,
+      params: body.params,
+      saveRequestLog: body.saveRequestLog,
+      continueOnError: body.continueOnError,
+    });
+  }
+
+  @Post('sync/:entityKey')
+  syncEntity(@Param('entityKey') entityKey: string, @Body() body: ClinicmindsSyncDto) {
+    return this.clinicmindsSyncService.runEntity(entityKey, {
+      format: body.format,
+      params: body.params,
+      saveRequestLog: body.saveRequestLog,
+    });
+  }
+
   @Get('patients')
   async getPatients(@Query() query: Record<string, string | undefined>) {
     const control = query as Record<string, string | undefined>;
@@ -41,6 +100,30 @@ export class ClinicmindsController {
     );
 
     return this.clinicmindsPatientsService.fetchPatients(params, format, saveLog);
+  }
+
+  @Get('appointments')
+  async getAppointments(@Query() query: Record<string, string | undefined>) {
+    const control = query as Record<string, string | undefined>;
+    const format = control.format as ClinicmindsRequestQueryDto['format'];
+    const saveLog = control.saveLog !== 'false';
+    const params = Object.fromEntries(
+      Object.entries(query).filter(([key]) => key !== 'format' && key !== 'saveLog'),
+    );
+
+    return this.clinicmindsAppointmentsService.fetchAppointments(params, format, saveLog);
+  }
+
+  @Get('online-bookings')
+  async getOnlineBookings(@Query() query: Record<string, string | undefined>) {
+    const control = query as Record<string, string | undefined>;
+    const format = control.format as ClinicmindsRequestQueryDto['format'];
+    const saveLog = control.saveLog !== 'false';
+    const params = Object.fromEntries(
+      Object.entries(query).filter(([key]) => key !== 'format' && key !== 'saveLog'),
+    );
+
+    return this.clinicmindsOnlineBookingsService.fetchOnlineBookings(params, format, saveLog);
   }
 
   @Post('request')

@@ -14,3 +14,4 @@ README.md
 *.log
 *.tmp
 .DS_Store
+/cm-reports/

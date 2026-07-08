@@ -1,0 +1,1577 @@
+{
+  "cmPatient": {
+    "targetTable": "cm_patient",
+    "sourceReportFile": "cm-reports/Patients .csv",
+    "notes": "Patient analytics extract from Clinicminds. Real field list comes from CSV header; sync filters are inferred from the Analytics API spec.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "initials",
+        "sourceColumn": "Initials",
+        "description": "Patient initials.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "firstName",
+        "sourceColumn": "First name",
+        "description": "Patient first name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "lastName",
+        "sourceColumn": "Last name",
+        "description": "Patient last name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "addressLine1",
+        "sourceColumn": "Address line 1",
+        "description": "Field imported from Clinicminds column \"Address line 1\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "addressLine2",
+        "sourceColumn": "Address line 2",
+        "description": "Field imported from Clinicminds column \"Address line 2\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "postalCode",
+        "sourceColumn": "Postal code",
+        "description": "Field imported from Clinicminds column \"Postal code\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "cityTown",
+        "sourceColumn": "City/town",
+        "description": "Field imported from Clinicminds column \"City/town\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "stateProvinceCounty",
+        "sourceColumn": "State/province/county",
+        "description": "Field imported from Clinicminds column \"State/province/county\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "gp",
+        "sourceColumn": "GP",
+        "description": "Field imported from Clinicminds column \"GP\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "pharmacy",
+        "sourceColumn": "Pharmacy",
+        "description": "Field imported from Clinicminds column \"Pharmacy\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "registered",
+        "sourceColumn": "Registered",
+        "description": "Field imported from Clinicminds column \"Registered\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "notWelcome",
+        "sourceColumn": "Not welcome",
+        "description": "Field imported from Clinicminds column \"Not welcome\".",
+        "dataType": "boolean",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "prohibitOnlineBooking",
+        "sourceColumn": "Prohibit online booking",
+        "description": "Field imported from Clinicminds column \"Prohibit online booking\".",
+        "dataType": "boolean",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Field imported from Clinicminds column \"Referral\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "notes",
+        "sourceColumn": "Notes",
+        "description": "Field imported from Clinicminds column \"Notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "attention",
+        "sourceColumn": "Attention",
+        "description": "Field imported from Clinicminds column \"Attention\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "warning",
+        "sourceColumn": "Warning",
+        "description": "Field imported from Clinicminds column \"Warning\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "firstRecord",
+        "sourceColumn": "First record",
+        "description": "Field imported from Clinicminds column \"First record\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "lastRecord",
+        "sourceColumn": "Last record",
+        "description": "Field imported from Clinicminds column \"Last record\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "records",
+        "sourceColumn": "Records",
+        "description": "Field imported from Clinicminds column \"Records\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatmentRecords",
+        "sourceColumn": "Treatment records",
+        "description": "Field imported from Clinicminds column \"Treatment records\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "totalSpendingInclTaxesExclGiftCards",
+        "sourceColumn": "Total spending (incl. taxes, excl. gift cards)",
+        "description": "Field imported from Clinicminds column \"Total spending (incl. taxes, excl. gift cards)\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  },
+  "cmAppointment": {
+    "targetTable": "cm_appointment",
+    "sourceReportFile": "cm-reports/Appointments.csv",
+    "notes": "Appointment extract. The API exposes two date ranges; based on the report fields these likely relate to appointment date and booking/cancellation related dates.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "initials",
+        "sourceColumn": "Initials",
+        "description": "Patient initials.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "firstName",
+        "sourceColumn": "First name",
+        "description": "Patient first name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "lastName",
+        "sourceColumn": "Last name",
+        "description": "Patient last name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Field imported from Clinicminds column \"Referral\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "onlineBooked",
+        "sourceColumn": "Online booked",
+        "description": "Field imported from Clinicminds column \"Online booked\".",
+        "dataType": "boolean",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "appointmentDate",
+        "sourceColumn": "Appointment date",
+        "description": "Appointment date and time shown by the report.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "duration",
+        "sourceColumn": "Duration",
+        "description": "Field imported from Clinicminds column \"Duration\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "appointmentType",
+        "sourceColumn": "Appointment type",
+        "description": "Field imported from Clinicminds column \"Appointment type\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatmentCategory",
+        "sourceColumn": "Treatment category",
+        "description": "Field imported from Clinicminds column \"Treatment category\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "service",
+        "sourceColumn": "Service",
+        "description": "Field imported from Clinicminds column \"Service\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatment",
+        "sourceColumn": "Treatment",
+        "description": "Field imported from Clinicminds column \"Treatment\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "user",
+        "sourceColumn": "User",
+        "description": "Clinicminds user or practitioner shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "room",
+        "sourceColumn": "Room",
+        "description": "Field imported from Clinicminds column \"Room\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "equipment",
+        "sourceColumn": "Equipment",
+        "description": "Field imported from Clinicminds column \"Equipment\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "status",
+        "sourceColumn": "Status",
+        "description": "Status value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "notes",
+        "sourceColumn": "Notes",
+        "description": "Field imported from Clinicminds column \"Notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "cancellationReason",
+        "sourceColumn": "Cancellation reason",
+        "description": "Field imported from Clinicminds column \"Cancellation reason\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "cancellationNotes",
+        "sourceColumn": "Cancellation notes",
+        "description": "Field imported from Clinicminds column \"Cancellation notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "noShowNotes",
+        "sourceColumn": "No-show notes",
+        "description": "Field imported from Clinicminds column \"No-show notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "bookingDate",
+        "sourceColumn": "Booking date",
+        "description": "Booking creation date and time shown by the report.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "cancellationDate",
+        "sourceColumn": "Cancellation date",
+        "description": "Field imported from Clinicminds column \"Cancellation date\".",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  },
+  "cmOnlineBooking": {
+    "targetTable": "cm_online_booking",
+    "sourceReportFile": "cm-reports/Online bookings.csv",
+    "notes": "Online booking extract. No sample rows were present, but the CSV header provides the real field names.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "initials",
+        "sourceColumn": "Initials",
+        "description": "Patient initials.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "firstName",
+        "sourceColumn": "First name",
+        "description": "Patient first name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "lastName",
+        "sourceColumn": "Last name",
+        "description": "Patient last name.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "appointmentDate",
+        "sourceColumn": "Appointment date",
+        "description": "Appointment date and time shown by the report.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "appointmentType",
+        "sourceColumn": "Appointment type",
+        "description": "Field imported from Clinicminds column \"Appointment type\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "service",
+        "sourceColumn": "Service",
+        "description": "Field imported from Clinicminds column \"Service\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "user",
+        "sourceColumn": "User",
+        "description": "Clinicminds user or practitioner shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "status",
+        "sourceColumn": "Status",
+        "description": "Status value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rejectionReason",
+        "sourceColumn": "Rejection reason",
+        "description": "Field imported from Clinicminds column \"Rejection reason\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rejectionNotes",
+        "sourceColumn": "Rejection notes",
+        "description": "Field imported from Clinicminds column \"Rejection notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "bookingDate",
+        "sourceColumn": "Booking date",
+        "description": "Booking creation date and time shown by the report.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  },
+  "cmInvoice": {
+    "targetTable": "cm_invoice",
+    "sourceReportFile": "cm-reports/Financial report & invoices.csv",
+    "notes": "Invoice-oriented finance extract. This report includes both invoice attributes and pivot-style payment/service/product subtotal columns.",
+    "fields": [
+      {
+        "key": "debtor",
+        "sourceColumn": "Debtor",
+        "description": "Field imported from Clinicminds column \"Debtor\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "address",
+        "sourceColumn": "Address",
+        "description": "Field imported from Clinicminds column \"Address\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Field imported from Clinicminds column \"Referral\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "invoiceNumber",
+        "sourceColumn": "Invoice number",
+        "description": "Invoice number from Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "invoiceDate",
+        "sourceColumn": "Invoice date",
+        "description": "Invoice date from the report.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dueDate",
+        "sourceColumn": "Due date",
+        "description": "Field imported from Clinicminds column \"Due date\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "user",
+        "sourceColumn": "User",
+        "description": "Clinicminds user or practitioner shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "taxExempted",
+        "sourceColumn": "Tax exempted",
+        "description": "Field imported from Clinicminds column \"Tax exempted\".",
+        "dataType": "boolean",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "discountNotes",
+        "sourceColumn": "Discount notes",
+        "description": "Field imported from Clinicminds column \"Discount notes\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "discountExclTaxes",
+        "sourceColumn": "Discount (excl. taxes)",
+        "description": "Field imported from Clinicminds column \"Discount (excl. taxes)\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "totalExclTaxes",
+        "sourceColumn": "Total (excl. taxes)",
+        "description": "Field imported from Clinicminds column \"Total (excl. taxes)\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "totalInclTaxes",
+        "sourceColumn": "Total (incl. taxes)",
+        "description": "Field imported from Clinicminds column \"Total (incl. taxes)\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "outstanding",
+        "sourceColumn": "Outstanding",
+        "description": "Field imported from Clinicminds column \"Outstanding\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "reducedRate",
+        "sourceColumn": "Reduced rate",
+        "description": "Field imported from Clinicminds column \"Reduced rate\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "standardRate",
+        "sourceColumn": "Standard rate",
+        "description": "Field imported from Clinicminds column \"Standard rate\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "zeroRate",
+        "sourceColumn": "Zero rate",
+        "description": "Field imported from Clinicminds column \"Zero rate\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "total",
+        "sourceColumn": "Total",
+        "description": "Field imported from Clinicminds column \"Total\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "americanExpress",
+        "sourceColumn": "American Express",
+        "description": "Field imported from Clinicminds column \"American Express\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "bankTransfer",
+        "sourceColumn": "Bank transfer",
+        "description": "Field imported from Clinicminds column \"Bank transfer\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "cash",
+        "sourceColumn": "Cash",
+        "description": "Field imported from Clinicminds column \"Cash\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "giftCard",
+        "sourceColumn": "Gift card",
+        "description": "Field imported from Clinicminds column \"Gift card\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "maestro",
+        "sourceColumn": "Maestro",
+        "description": "Field imported from Clinicminds column \"Maestro\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mastercard",
+        "sourceColumn": "MasterCard",
+        "description": "Field imported from Clinicminds column \"MasterCard\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "stripe",
+        "sourceColumn": "Stripe",
+        "description": "Field imported from Clinicminds column \"Stripe\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "visa",
+        "sourceColumn": "Visa",
+        "description": "Field imported from Clinicminds column \"Visa\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "wallet",
+        "sourceColumn": "Wallet",
+        "description": "Field imported from Clinicminds column \"Wallet\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "total",
+        "sourceColumn": "Total",
+        "description": "Field imported from Clinicminds column \"Total\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "botulinumToxinBocoutureSyringe",
+        "sourceColumn": "Botulinum Toxin (Bocouture; syringe)",
+        "description": "Field imported from Clinicminds column \"Botulinum Toxin (Bocouture; syringe)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "hyaluronicAcid1PercentTeosyalDeepLinesSyringe",
+        "sourceColumn": "Hyaluronic acid 1% (Teosyal Deep Lines; syringe)",
+        "description": "Field imported from Clinicminds column \"Hyaluronic acid 1% (Teosyal Deep Lines; syringe)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "laserIPLUpperLip",
+        "sourceColumn": "Laser/IPL upper lip",
+        "description": "Field imported from Clinicminds column \"Laser/IPL upper lip\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "total",
+        "sourceColumn": "Total",
+        "description": "Field imported from Clinicminds column \"Total\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "crMeMilleHydratanteMariaGalland",
+        "sourceColumn": "Cr\u00e8me Mille Hydratante (Maria Galland)",
+        "description": "Field imported from Clinicminds column \"Cr\u00e8me Mille Hydratante (Maria Galland)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "revitalizingCreamBiodermal",
+        "sourceColumn": "Revitalizing Cream (Biodermal)",
+        "description": "Field imported from Clinicminds column \"Revitalizing Cream (Biodermal)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "total",
+        "sourceColumn": "Total",
+        "description": "Field imported from Clinicminds column \"Total\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "total",
+        "sourceColumn": "Total",
+        "description": "Field imported from Clinicminds column \"Total\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "botulinumToxinBocoutureSyringe",
+        "sourceColumn": "Botulinum Toxin (Bocouture; syringe)",
+        "description": "Field imported from Clinicminds column \"Botulinum Toxin (Bocouture; syringe)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "hyaluronicAcid1PercentTeosyalDeepLinesSyringe",
+        "sourceColumn": "Hyaluronic acid 1% (Teosyal Deep Lines; syringe)",
+        "description": "Field imported from Clinicminds column \"Hyaluronic acid 1% (Teosyal Deep Lines; syringe)\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  },
+  "cmProductSale": {
+    "targetTable": "cm_product_sale",
+    "sourceReportFile": "cm-reports/Product sales.csv",
+    "notes": "Product sales extract. No sample rows were present, but the CSV header provides the real field names.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patient",
+        "sourceColumn": "Patient",
+        "description": "Field imported from Clinicminds column \"Patient\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "address",
+        "sourceColumn": "Address",
+        "description": "Field imported from Clinicminds column \"Address\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Field imported from Clinicminds column \"Referral\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "product",
+        "sourceColumn": "Product",
+        "description": "Field imported from Clinicminds column \"Product\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "saleDate",
+        "sourceColumn": "Sale date",
+        "description": "Field imported from Clinicminds column \"Sale date\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "user",
+        "sourceColumn": "User",
+        "description": "Clinicminds user or practitioner shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "amountInclTaxes",
+        "sourceColumn": "Amount (incl. taxes)",
+        "description": "Amount including taxes from the report.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  },
+  "cmTreatment": {
+    "targetTable": "cm_treatment",
+    "sourceReportFile": "cm-reports/Treatment data.csv",
+    "notes": "Treatment data extract with clinical and financial fields.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patient",
+        "sourceColumn": "Patient",
+        "description": "Field imported from Clinicminds column \"Patient\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "address",
+        "sourceColumn": "Address",
+        "description": "Field imported from Clinicminds column \"Address\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Field imported from Clinicminds column \"Referral\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatment",
+        "sourceColumn": "Treatment",
+        "description": "Field imported from Clinicminds column \"Treatment\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatmentDate",
+        "sourceColumn": "Treatment date",
+        "description": "Treatment date from the report.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "practitioner",
+        "sourceColumn": "Practitioner",
+        "description": "Field imported from Clinicminds column \"Practitioner\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "taxExempted",
+        "sourceColumn": "Tax exempted",
+        "description": "Field imported from Clinicminds column \"Tax exempted\".",
+        "dataType": "boolean",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "amountInclTaxes",
+        "sourceColumn": "Amount (incl. taxes)",
+        "description": "Amount including taxes from the report.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "diagnoses",
+        "sourceColumn": "Diagnoses",
+        "description": "Field imported from Clinicminds column \"Diagnoses\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "asaClassification",
+        "sourceColumn": "ASA classification",
+        "description": "Field imported from Clinicminds column \"ASA classification\".",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "lotNumber",
+        "sourceColumn": "Lot number",
+        "description": "Field imported from Clinicminds column \"Lot number\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "expirationDate",
+        "sourceColumn": "Expiration date",
+        "description": "Field imported from Clinicminds column \"Expiration date\".",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "uniqueCode",
+        "sourceColumn": "Unique code",
+        "description": "Field imported from Clinicminds column \"Unique code\".",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sourceEndpoint",
+        "description": "Clinicminds API endpoint used to fetch the data row.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "fetchedAt",
+        "description": "UTC timestamp when MESQ fetched the row.",
+        "dataType": "datetime",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "rawJson",
+        "description": "Original source row payload stored as JSON for audit and remapping.",
+        "dataType": "object",
+        "isColumn": true,
+        "includeInAiContext": false
+      }
+    ]
+  }
+}

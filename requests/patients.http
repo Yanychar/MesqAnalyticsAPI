@@ -1,12 +1,13 @@
 @baseUrl = http://localhost:3020
 @patientsDateFrom = 2026-04-01
 @patientsDateTo = 2026-05-31
-@patientsLocationId = 1
 @patientsFormat = json
 @patientsSaveLog = true
+@patientsSyncRunsLimit = 20
+@patientsRawLimit = 20
 
 ### Patients request with editable filters
-GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&location_id={{patientsLocationId}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
+GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
 Accept: application/json
 
 ### Min Patients request
@@ -17,3 +18,28 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
 Accept: application/json
 
+### Just returns Patient sync entity definition from entities.config.json
+GET {{baseUrl}}/clinicminds/sync/entities
+Accept: application/json
+
+### Run patient sync
+POST {{baseUrl}}/clinicminds/sync/cmPatient
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{patientsFormat}}",
+  "saveRequestLog": true
+}
+
+### List patient sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmPatient&limit={{patientsSyncRunsLimit}}
+Accept: application/json
+
+### List patient raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmPatient&limit={{patientsRawLimit}}
+Accept: application/json
+
+### List patient raw rows that need update
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmPatient&updateNeeded=true&limit={{patientsRawLimit}}
+Accept: application/json

@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:3020
+@appointmentsDateFrom = 2026-07-01
+@appointmentsDateTo = 2026-07-07
+@appointmentsFormat = json
+@appointmentsSaveLog = true
+@appointmentsSyncRunsLimit = 20
+@appointmentsRawLimit = 20
+
+### Appointment request with editable booking-date filter
+GET {{baseUrl}}/clinicminds/appointments?date2_from={{appointmentsDateFrom}}&date2_to={{appointmentsDateTo}}&format={{appointmentsFormat}}&saveLog={{appointmentsSaveLog}}
+Accept: application/json
+
+### Run appointment sync with automatic booking-date gap logic
+POST {{baseUrl}}/clinicminds/sync/cmAppointment
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{appointmentsFormat}}",
+  "saveRequestLog": true
+}
+
+### Run appointment sync with explicit booking-date filter
+POST {{baseUrl}}/clinicminds/sync/cmAppointment
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{appointmentsFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "date2_from": "{{appointmentsDateFrom}}",
+    "date2_to": "{{appointmentsDateTo}}"
+  }
+}
+
+### List appointment sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmAppointment&limit={{appointmentsSyncRunsLimit}}
+Accept: application/json
+
+### List appointment raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmAppointment&limit={{appointmentsRawLimit}}
+Accept: application/json
+
+### List appointment raw rows that need update
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmAppointment&updateNeeded=true&limit={{appointmentsRawLimit}}
+Accept: application/json

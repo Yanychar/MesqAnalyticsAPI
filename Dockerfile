@@ -9,6 +9,7 @@ RUN npm install --legacy-peer-deps
 FROM deps AS build
 COPY tsconfig*.json nest-cli.json ./
 COPY prisma ./prisma
+COPY config ./config
 COPY clinicminds-openapi.json ./
 COPY src ./src
 RUN npx prisma generate
@@ -21,6 +22,7 @@ COPY package.json ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/config ./config
 COPY --from=build /app/clinicminds-openapi.json ./
 EXPOSE 3000
 CMD ["sh", "-c", "npx prisma db push && node dist/main.js"]

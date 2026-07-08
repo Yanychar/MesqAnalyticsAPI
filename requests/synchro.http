@@ -1,0 +1,56 @@
+@baseUrl = http://localhost:3020
+@syncDateFrom = 2026-04-01
+@syncDateTo = 2026-04-30
+@syncFormat = json
+@syncSaveRequestLog = true
+@syncContinueOnError = true
+@syncRunsLimit = 20
+@rawLimit = 20
+@rawUpdateNeeded = false
+
+### List sync entities loaded from config
+GET {{baseUrl}}/clinicminds/sync/entities
+Accept: application/json
+
+### Run sync for all enabled entities
+POST {{baseUrl}}/clinicminds/sync
+Content-Type: application/json
+Accept: application/json
+
+{
+  "continueOnError": {{syncContinueOnError}},
+  "format": "{{syncFormat}}",
+  "saveRequestLog": {{syncSaveRequestLog}},
+  "params": {
+    "date_from": "{{syncDateFrom}}",
+    "date_to": "{{syncDateTo}}"
+  }
+}
+
+### Run sync for explicit entity list
+POST {{baseUrl}}/clinicminds/sync
+Content-Type: application/json
+Accept: application/json
+
+{
+  "entityKeys": ["cmInvoice", "cmProductSale", "cmTreatment"],
+  "continueOnError": {{syncContinueOnError}},
+  "format": "{{syncFormat}}",
+  "saveRequestLog": {{syncSaveRequestLog}},
+  "params": {
+    "date_from": "{{syncDateFrom}}",
+    "date_to": "{{syncDateTo}}"
+  }
+}
+
+### List recent sync runs for all entities
+GET {{baseUrl}}/clinicminds/sync/runs?limit={{syncRunsLimit}}
+Accept: application/json
+
+### List raw rows for all entities
+GET {{baseUrl}}/clinicminds/raw?limit={{rawLimit}}
+Accept: application/json
+
+### List raw rows by updateNeeded flag
+GET {{baseUrl}}/clinicminds/raw?updateNeeded={{rawUpdateNeeded}}&limit={{rawLimit}}
+Accept: application/json

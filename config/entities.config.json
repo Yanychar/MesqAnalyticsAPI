@@ -1,0 +1,310 @@
+[
+  {
+    "key": "cmPatient",
+    "label": "CM Patient",
+    "endpoint": "/api/analytics/patients",
+    "targetTable": "cm_patient",
+    "cron": "30 2 * * *",
+    "mode": "full_replace",
+    "externalIdField": "patientNumber",
+    "readStrategy": "full_replace",
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to"
+    ],
+    "notes": "Patient analytics extract from Clinicminds. Because the API date filters use initial registration date rather than change date, patient sync should run as a full daily replace.",
+    "enabled": true,
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber"
+      ],
+      [
+        "lastName",
+        "firstName",
+        "dateOfBirth"
+      ]
+    ]
+  },
+  {
+    "key": "cmAppointment",
+    "label": "CM Appointment",
+    "endpoint": "/api/analytics/appointments",
+    "targetTable": "cm_appointment",
+    "cron": "30 3 * * *",
+    "mode": "incremental",
+    "externalIdField": "patientNumber",
+    "readStrategy": "booking_gap_window",
+    "secondaryRangeFromParam": "date2_from",
+    "secondaryRangeToParam": "date2_to",
+    "cursorStartDate": "2026-01-01",
+    "filtersFromSpec": [
+      "format",
+      "date2_from",
+      "date2_to",
+      "appointment_status",
+      "treatment_type_id",
+      "user_id"
+    ],
+    "notes": "Appointment extract. Sync runs once per day by booking date, starting from 2026-01-01 and continuing from the last successful booking-date window up to yesterday.",
+    "enabled": true,
+    "primaryDateField": "appointmentDate",
+    "secondaryDateField": "bookingDate",
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber"
+      ],
+      [
+        "firstName",
+        "lastName"
+      ],
+      [
+        "appointmentDate"
+      ],
+      [
+        "bookingDate"
+      ]
+    ]
+  },
+  {
+    "key": "cmOnlineBooking",
+    "label": "CM Online Booking",
+    "endpoint": "/api/analytics/online-bookings",
+    "targetTable": "cm_online_booking",
+    "cron": "5 * * * *",
+    "mode": "incremental",
+    "externalIdField": "patientNumber",
+    "readStrategy": "dual_date_window",
+    "rangeFromParam": "date_from",
+    "rangeToParam": "date_to",
+    "secondaryRangeFromParam": "date2_from",
+    "secondaryRangeToParam": "date2_to",
+    "rangeWindowUnit": "day",
+    "rangeWindowSize": 7,
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "date2_from",
+      "date2_to",
+      "online_booking_status",
+      "service_id",
+      "user_id"
+    ],
+    "notes": "Online booking extract. No sample rows were present, but the CSV header provides the real field names.",
+    "enabled": true,
+    "primaryDateField": "appointmentDate",
+    "secondaryDateField": "bookingDate",
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber",
+        "bookingDate"
+      ],
+      [
+        "appointmentDate"
+      ],
+      [
+        "bookingDate"
+      ],
+      [
+        "location",
+        "appointmentDate"
+      ],
+      [
+        "user",
+        "appointmentDate"
+      ],
+      [
+        "status"
+      ]
+    ]
+  },
+  {
+    "key": "cmInvoice",
+    "label": "CM Invoice",
+    "endpoint": "/api/analytics/invoices",
+    "targetTable": "cm_invoice",
+    "cron": "*/30 * * * *",
+    "mode": "incremental",
+    "externalIdField": "invoiceNumber",
+    "readStrategy": "date_window",
+    "rangeFromParam": "date_from",
+    "rangeToParam": "date_to",
+    "rangeWindowUnit": "day",
+    "rangeWindowSize": 7,
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "invoice_status",
+      "user_id"
+    ],
+    "notes": "Invoice-oriented finance extract. This report includes both invoice attributes and pivot-style payment/service/product subtotal columns.",
+    "enabled": true,
+    "primaryDateField": "invoiceDate",
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "invoiceNumber"
+      ],
+      [
+        "patientNumber",
+        "invoiceDate"
+      ],
+      [
+        "invoiceDate"
+      ],
+      [
+        "location",
+        "invoiceDate"
+      ],
+      [
+        "user",
+        "invoiceDate"
+      ]
+    ]
+  },
+  {
+    "key": "cmProductSale",
+    "label": "CM Product Sale",
+    "endpoint": "/api/analytics/product-sales",
+    "targetTable": "cm_product_sale",
+    "cron": "0 * * * *",
+    "mode": "incremental",
+    "externalIdField": "patientNumber",
+    "readStrategy": "date_window",
+    "rangeFromParam": "date_from",
+    "rangeToParam": "date_to",
+    "rangeWindowUnit": "day",
+    "rangeWindowSize": 7,
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "treating_user_id"
+    ],
+    "notes": "Product sales extract. No sample rows were present, but the CSV header provides the real field names.",
+    "enabled": true,
+    "primaryDateField": "saleDate",
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber",
+        "saleDate"
+      ],
+      [
+        "saleDate"
+      ],
+      [
+        "product"
+      ],
+      [
+        "location",
+        "saleDate"
+      ],
+      [
+        "user",
+        "saleDate"
+      ]
+    ]
+  },
+  {
+    "key": "cmTreatment",
+    "label": "CM Treatment",
+    "endpoint": "/api/analytics/treatments",
+    "targetTable": "cm_treatment",
+    "cron": "10 * * * *",
+    "mode": "incremental",
+    "externalIdField": "patientNumber",
+    "readStrategy": "date_window",
+    "rangeFromParam": "date_from",
+    "rangeToParam": "date_to",
+    "rangeWindowUnit": "day",
+    "rangeWindowSize": 7,
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "treating_user_id"
+    ],
+    "notes": "Treatment data extract with clinical and financial fields.",
+    "enabled": true,
+    "primaryDateField": "treatmentDate",
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "updateNeeded"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber",
+        "treatmentDate"
+      ],
+      [
+        "treatmentDate"
+      ],
+      [
+        "treatment"
+      ],
+      [
+        "location",
+        "treatmentDate"
+      ],
+      [
+        "practitioner",
+        "treatmentDate"
+      ],
+      [
+        "lotNumber",
+        "treatmentDate"
+      ]
+    ]
+  }
+]
