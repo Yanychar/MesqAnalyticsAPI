@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { ClinicmindsSyncStatus, Prisma } from '@prisma/client';
+import { ClinicmindsStagingStatus, ClinicmindsSyncStatus, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ClinicmindsClient } from './clinicminds.client';
@@ -96,11 +96,15 @@ export class ClinicmindsSyncService {
     return runs.map((run) => this.serializeBigIntValues(run));
   }
 
-  async listRawRecords(entityKey?: string, updateNeeded?: boolean, limit = 20) {
+  async listRawRecords(
+    entityKey?: string,
+    stagingStatus?: ClinicmindsStagingStatus,
+    limit = 20,
+  ) {
     const rows = await this.prisma.clinicmindsRawRecord.findMany({
       where: {
         ...(entityKey ? { entityKey } : {}),
-        ...(updateNeeded === undefined ? {} : { updateNeeded }),
+        ...(stagingStatus === undefined ? {} : { stagingStatus }),
       },
       orderBy: { fetchedAt: 'desc' },
       take: Math.min(Math.max(limit, 1), 100),
@@ -166,7 +170,7 @@ export class ClinicmindsSyncService {
             syncRunId: syncRun.id,
             entityKey: entity.key,
             externalId: row.externalId,
-            updateNeeded: false,
+            stagingStatus: ClinicmindsStagingStatus.STAGING_NEEDED,
             rowIndex: row.rowIndex,
             payload: row.payload,
           })),
@@ -244,10 +248,7 @@ export class ClinicmindsSyncService {
       ...(entity.staticParams ?? {}),
     };
 
-    if (
-      entity.readStrategy === 'date_window' ||
-      entity.readStrategy === 'dual_date_window'
-    ) {
+    if (entity.readStrategy === 'rolling_date_window') {
       const windowSize = Math.max(entity.rangeWindowSize ?? 1, 1);
       const to = this.formatDate(today);
       const from = this.formatDate(this.addDays(today, -(windowSize - 1)));
@@ -256,28 +257,28 @@ export class ClinicmindsSyncService {
         defaultParams[entity.rangeFromParam] = from;
         defaultParams[entity.rangeToParam] = to;
       }
+    }
 
-      if (
-        entity.readStrategy === 'dual_date_window' &&
-        entity.secondaryRangeFromParam &&
-        entity.secondaryRangeToParam
-      ) {
-        defaultParams[entity.secondaryRangeFromParam] = from;
-        defaultParams[entity.secondaryRangeToParam] = to;
+    if (entity.readStrategy === 'previous_day_window') {
+      const previousDay = this.formatDate(this.addDays(today, -1));
+
+      if (entity.rangeFromParam && entity.rangeToParam) {
+        defaultParams[entity.rangeFromParam] = previousDay;
+        defaultParams[entity.rangeToParam] = previousDay;
       }
     }
 
     if (
-      entity.readStrategy === 'booking_gap_window' &&
-      entity.secondaryRangeFromParam &&
-      entity.secondaryRangeToParam
+      entity.readStrategy === 'date_window' &&
+      entity.rangeFromParam &&
+      entity.rangeToParam
     ) {
-      const hasFromOverride = overrides[entity.secondaryRangeFromParam] !== undefined;
-      const hasToOverride = overrides[entity.secondaryRangeToParam] !== undefined;
+      const hasFromOverride = overrides[entity.rangeFromParam] !== undefined;
+      const hasToOverride = overrides[entity.rangeToParam] !== undefined;
 
       if (hasFromOverride !== hasToOverride) {
         throw new BadRequestException(
-          `Both ${entity.secondaryRangeFromParam} and ${entity.secondaryRangeToParam} must be provided together.`,
+          `Both ${entity.rangeFromParam} and ${entity.rangeToParam} must be provided together.`,
         );
       }
 
@@ -292,9 +293,9 @@ export class ClinicmindsSyncService {
           };
         }
 
-        // Appointment sync follows booking date only. The last successful date2_to becomes the next cursor.
-        defaultParams[entity.secondaryRangeFromParam] = startDate;
-        defaultParams[entity.secondaryRangeToParam] = endDate;
+        // Cursor-based date sync uses one date range only and continues from the last successful run.
+        defaultParams[entity.rangeFromParam] = startDate;
+        defaultParams[entity.rangeToParam] = endDate;
       }
     }
 
@@ -351,8 +352,8 @@ export class ClinicmindsSyncService {
     item: Record<string, unknown>,
     rowIndex: number,
   ) {
-    const externalId = entity.externalIdField
-      ? this.toNullableString(item[entity.externalIdField])
+    const externalId = entity.externalIdField || entity.externalIdFields?.length
+      ? this.extractExternalId(entity, item)
       : null;
 
     return {
@@ -361,6 +362,32 @@ export class ClinicmindsSyncService {
       rowIndex,
       payload: item as Prisma.InputJsonValue,
     };
+  }
+
+
+  private extractExternalId(
+    entity: ClinicmindsEntitySyncConfig,
+    item: Record<string, unknown>,
+  ): string | null {
+    if (entity.externalIdFields?.length) {
+      const parts = entity.externalIdFields
+        .map((fieldKey) => {
+          const sourceColumn = this.syncConfigService.getSourceColumn(entity.key, fieldKey);
+          return this.toNullableString(item[fieldKey] ?? (sourceColumn ? item[sourceColumn] : undefined));
+        })
+        .filter((value): value is string => value !== null);
+
+      return parts.length > 0 ? parts.join('|') : null;
+    }
+
+    const fieldKey = entity.externalIdField;
+    if (!fieldKey) {
+      return null;
+    }
+
+    // Raw payload keeps original Clinicminds column names, while config uses normalized field keys.
+    const sourceColumn = this.syncConfigService.getSourceColumn(entity.key, fieldKey);
+    return this.toNullableString(item[fieldKey] ?? (sourceColumn ? item[sourceColumn] : undefined));
   }
 
   private asRecord(value: unknown): Record<string, unknown> {
@@ -384,7 +411,7 @@ export class ClinicmindsSyncService {
   ): Promise<string> {
     const startDate = entity.cursorStartDate ?? '2026-01-01';
 
-    if (!entity.secondaryRangeToParam) {
+    if (!entity.rangeToParam) {
       return startDate;
     }
 
@@ -399,7 +426,7 @@ export class ClinicmindsSyncService {
 
     const previousEndDate = this.extractStringParam(
       lastRun?.requestParams,
-      entity.secondaryRangeToParam,
+      entity.rangeToParam,
     );
 
     if (!previousEndDate) {

@@ -7,10 +7,10 @@
 @onlineBookingsRawLimit = 20
 
 ### Online bookings request with editable filters
-GET {{baseUrl}}/clinicminds/online-bookings?date_from={{onlineBookingsDateFrom}}&date_to={{onlineBookingsDateTo}}&date2_from={{onlineBookingsDateFrom}}&date2_to={{onlineBookingsDateTo}}&format={{onlineBookingsFormat}}&saveLog={{onlineBookingsSaveLog}}
+GET {{baseUrl}}/clinicminds/online-bookings?booking_from={{onlineBookingsDateFrom}}&booking_to={{onlineBookingsDateTo}}&format={{onlineBookingsFormat}}&saveLog={{onlineBookingsSaveLog}}
 Accept: application/json
 
-### Run online bookings sync with default date-window logic
+### Run online bookings sync with automatic date_window catch-up logic from 2026-01-01
 POST {{baseUrl}}/clinicminds/sync/cmOnlineBooking
 Content-Type: application/json
 Accept: application/json
@@ -29,10 +29,8 @@ Accept: application/json
   "format": "{{onlineBookingsFormat}}",
   "saveRequestLog": true,
   "params": {
-    "date_from": "{{onlineBookingsDateFrom}}",
-    "date_to": "{{onlineBookingsDateTo}}",
-    "date2_from": "{{onlineBookingsDateFrom}}",
-    "date2_to": "{{onlineBookingsDateTo}}"
+    "booking_from": "{{onlineBookingsDateFrom}}",
+    "booking_to": "{{onlineBookingsDateTo}}"
   }
 }
 
@@ -44,6 +42,6 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/raw?entityKey=cmOnlineBooking&limit={{onlineBookingsRawLimit}}
 Accept: application/json
 
-### List online booking raw rows that need update
-GET {{baseUrl}}/clinicminds/raw?entityKey=cmOnlineBooking&updateNeeded=true&limit={{onlineBookingsRawLimit}}
+### List online booking raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmOnlineBooking&stagingStatus=STAGING_NEEDED&limit={{onlineBookingsRawLimit}}
 Accept: application/json

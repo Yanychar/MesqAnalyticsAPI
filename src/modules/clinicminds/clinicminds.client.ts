@@ -28,6 +28,7 @@ export class ClinicmindsClient {
         timeoutMs: 30000,
         defaultFormat: 'json',
         userAgent: 'AppointmentsHandler/1.0 (+serge.sevastianov@medfin.fi)',
+        locationId: null,
       } satisfies ClinicmindsConfig);
 
     this.httpClient = axios.create({
@@ -64,6 +65,29 @@ export class ClinicmindsClient {
     return report;
   }
 
+
+  private translateParamsForClinicminds(
+    params: Record<string, string | number | boolean | undefined>,
+  ): Record<string, string | number | boolean> {
+    const translated = { ...params };
+
+    // Keep readable internal filter names while still calling Clinicminds with its original query names.
+    if (translated.booking_from !== undefined && translated.date2_from === undefined) {
+      translated.date2_from = translated.booking_from;
+    }
+
+    if (translated.booking_to !== undefined && translated.date2_to === undefined) {
+      translated.date2_to = translated.booking_to;
+    }
+
+    delete translated.booking_from;
+    delete translated.booking_to;
+
+    return Object.fromEntries(
+      Object.entries(translated).filter(([, value]) => value !== undefined),
+    ) as Record<string, string | number | boolean>;
+  }
+
   async fetchOperation(
     operationId: string,
     params: Record<string, string | number | boolean | undefined>,
@@ -77,12 +101,10 @@ export class ClinicmindsClient {
     }
 
     const report = this.getReportDefinition(operationId);
-    const cleanParams = Object.fromEntries(
-      Object.entries({
-        format,
-        ...params,
-      }).filter(([, value]) => value !== undefined),
-    );
+    const cleanParams = this.translateParamsForClinicminds({
+      format,
+      ...params,
+    });
 
     try {
       const response = await this.httpClient.get(report.path, {

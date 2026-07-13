@@ -21,7 +21,7 @@
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
@@ -43,29 +43,24 @@
     "cron": "30 3 * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
-    "readStrategy": "booking_gap_window",
-    "secondaryRangeFromParam": "date2_from",
-    "secondaryRangeToParam": "date2_to",
+    "readStrategy": "date_window",
+    "rangeFromParam": "booking_from",
+    "rangeToParam": "booking_to",
     "cursorStartDate": "2026-01-01",
     "filtersFromSpec": [
       "format",
-      "date2_from",
-      "date2_to",
-      "appointment_status",
-      "treatment_type_id",
-      "user_id"
+      "booking_from",
+      "booking_to"
     ],
     "notes": "Appointment extract. Sync runs once per day by booking date, starting from 2026-01-01 and continuing from the last successful booking-date window up to yesterday.",
     "enabled": true,
-    "primaryDateField": "appointmentDate",
-    "secondaryDateField": "bookingDate",
     "rawTableIndexes": [
       [
         "entityKey"
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
@@ -92,57 +87,39 @@
     "cron": "5 * * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
-    "readStrategy": "dual_date_window",
-    "rangeFromParam": "date_from",
-    "rangeToParam": "date_to",
-    "secondaryRangeFromParam": "date2_from",
-    "secondaryRangeToParam": "date2_to",
-    "rangeWindowUnit": "day",
-    "rangeWindowSize": 7,
+    "readStrategy": "date_window",
+    "rangeFromParam": "booking_from",
+    "rangeToParam": "booking_to",
+    "cursorStartDate": "2026-01-01",
     "filtersFromSpec": [
       "format",
-      "date_from",
-      "date_to",
-      "date2_from",
-      "date2_to",
-      "online_booking_status",
-      "service_id",
-      "user_id"
+      "booking_from",
+      "booking_to"
     ],
-    "notes": "Online booking extract. No sample rows were present, but the CSV header provides the real field names.",
+    "notes": "Online booking extract. Sync continues by booking date from 2026-01-01 up to yesterday.",
     "enabled": true,
-    "primaryDateField": "appointmentDate",
-    "secondaryDateField": "bookingDate",
     "rawTableIndexes": [
       [
         "entityKey"
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
       [
-        "patientNumber",
-        "bookingDate"
+        "patientNumber"
+      ],
+      [
+        "firstName",
+        "lastName"
       ],
       [
         "appointmentDate"
       ],
       [
         "bookingDate"
-      ],
-      [
-        "location",
-        "appointmentDate"
-      ],
-      [
-        "user",
-        "appointmentDate"
-      ],
-      [
-        "status"
       ]
     ]
   },
@@ -153,29 +130,25 @@
     "targetTable": "cm_invoice",
     "cron": "*/30 * * * *",
     "mode": "incremental",
-    "externalIdField": "invoiceNumber",
+    "externalIdField": "invoiceDate",
     "readStrategy": "date_window",
     "rangeFromParam": "date_from",
     "rangeToParam": "date_to",
-    "rangeWindowUnit": "day",
-    "rangeWindowSize": 7,
+    "cursorStartDate": "2026-01-01",
     "filtersFromSpec": [
       "format",
       "date_from",
-      "date_to",
-      "invoice_status",
-      "user_id"
+      "date_to"
     ],
-    "notes": "Invoice-oriented finance extract. This report includes both invoice attributes and pivot-style payment/service/product subtotal columns.",
+    "notes": "Invoice-oriented finance extract. Sync continues by invoice date from 2026-01-01 up to yesterday.",
     "enabled": true,
-    "primaryDateField": "invoiceDate",
     "rawTableIndexes": [
       [
         "entityKey"
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
@@ -187,10 +160,6 @@
         "invoiceDate"
       ],
       [
-        "invoiceDate"
-      ],
-      [
-        "location",
         "invoiceDate"
       ],
       [
@@ -210,8 +179,7 @@
     "readStrategy": "date_window",
     "rangeFromParam": "date_from",
     "rangeToParam": "date_to",
-    "rangeWindowUnit": "day",
-    "rangeWindowSize": 7,
+    "cursorStartDate": "2026-01-01",
     "filtersFromSpec": [
       "format",
       "date_from",
@@ -220,14 +188,13 @@
     ],
     "notes": "Product sales extract. No sample rows were present, but the CSV header provides the real field names.",
     "enabled": true,
-    "primaryDateField": "saleDate",
     "rawTableIndexes": [
       [
         "entityKey"
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
@@ -240,10 +207,6 @@
       ],
       [
         "product"
-      ],
-      [
-        "location",
-        "saleDate"
       ],
       [
         "user",
@@ -259,7 +222,7 @@
     "cron": "10 * * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
-    "readStrategy": "date_window",
+    "readStrategy": "rolling_date_window",
     "rangeFromParam": "date_from",
     "rangeToParam": "date_to",
     "rangeWindowUnit": "day",
@@ -271,15 +234,14 @@
       "treating_user_id"
     ],
     "notes": "Treatment data extract with clinical and financial fields.",
-    "enabled": true,
-    "primaryDateField": "treatmentDate",
+    "enabled": false,
     "rawTableIndexes": [
       [
         "entityKey"
       ],
       [
         "entityKey",
-        "updateNeeded"
+        "stagingStatus"
       ]
     ],
     "normalizedIndexes": [
@@ -294,17 +256,48 @@
         "treatment"
       ],
       [
-        "location",
-        "treatmentDate"
-      ],
-      [
         "practitioner",
         "treatmentDate"
+      ]
+    ]
+  },
+  {
+    "key": "cmMaterialTreatment",
+    "label": "CM Material Treatment",
+    "endpoint": "/api/analytics/treatment-material-stock",
+    "targetTable": "cm_treatment",
+    "cron": "15 1 * * *",
+    "mode": "full_replace",
+    "readStrategy": "full_replace",
+    "filtersFromSpec": [
+      "format",
+      "location_id"
+    ],
+    "notes": "Treatment catalog entry sourced first from Clinicminds treatment material stock. Material-stock rows are provisioned from this endpoint now, while non-material treatments will be added later from other sources.",
+    "enabled": true,
+    "rawTableIndexes": [
+      [
+        "entityKey"
       ],
       [
-        "lotNumber",
-        "treatmentDate"
+        "entityKey",
+        "stagingStatus"
       ]
+    ],
+    "normalizedIndexes": [
+      [
+        "externalId",
+        "materialStock"
+      ],
+      [
+        "treatment",
+        "materialStock"
+      ]
+    ],
+    "externalIdFields": [
+      "treatment",
+      "brand",
+      "unit"
     ]
   }
 ]

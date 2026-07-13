@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 
 import { ClinicmindsAppointmentsService } from './clinicminds-appointments.service';
+import { ClinicmindsInvoicesService } from './clinicminds-invoices.service';
+import { ClinicmindsProductSalesService } from './clinicminds-product-sales.service';
+import { ClinicmindsTreatmentMaterialStockService } from './clinicminds-treatment-material-stock.service';
 import { ClinicmindsClient } from './clinicminds.client';
 import { ClinicmindsOnlineBookingsService } from './clinicminds-online-bookings.service';
 import { ClinicmindsController } from './clinicminds.controller';
 import { ClinicmindsPatientsService } from './clinicminds-patients.service';
 import { ClinicmindsRequestLogService } from './clinicminds-request-log.service';
 import { ClinicmindsSpecService } from './clinicminds-spec.service';
+import { ClinicmindsStageService } from './clinicminds-stage.service';
 import { ClinicmindsSyncConfigService } from './clinicminds-sync-config.service';
 import { ClinicmindsSyncService } from './clinicminds-sync.service';
 
@@ -14,9 +18,14 @@ import { ClinicmindsSyncService } from './clinicminds-sync.service';
   controllers: [ClinicmindsController],
   providers: [
     ClinicmindsAppointmentsService,
+    ClinicmindsInvoicesService,
+    ClinicmindsProductSalesService,
+    ClinicmindsTreatmentMaterialStockService,
+    ClinicmindsTreatmentMaterialStockService,
     ClinicmindsClient,
     ClinicmindsOnlineBookingsService,
     ClinicmindsSpecService,
+    ClinicmindsStageService,
     ClinicmindsRequestLogService,
     ClinicmindsPatientsService,
     ClinicmindsSyncConfigService,
@@ -24,9 +33,12 @@ import { ClinicmindsSyncService } from './clinicminds-sync.service';
   ],
   exports: [
     ClinicmindsAppointmentsService,
+    ClinicmindsInvoicesService,
+    ClinicmindsProductSalesService,
     ClinicmindsClient,
     ClinicmindsOnlineBookingsService,
     ClinicmindsSpecService,
+    ClinicmindsStageService,
     ClinicmindsRequestLogService,
     ClinicmindsPatientsService,
     ClinicmindsSyncConfigService,

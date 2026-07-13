@@ -4,7 +4,7 @@
 @patientsFormat = json
 @patientsSaveLog = true
 @patientsSyncRunsLimit = 20
-@patientsRawLimit = 20
+@patientsRawLimit = 1000
 
 ### Patients request with editable filters
 GET {{baseUrl}}/clinicminds/patients?date_from={{patientsDateFrom}}&date_to={{patientsDateTo}}&format={{patientsFormat}}&saveLog={{patientsSaveLog}}
@@ -40,6 +40,22 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/raw?entityKey=cmPatient&limit={{patientsRawLimit}}
 Accept: application/json
 
-### List patient raw rows that need update
-GET {{baseUrl}}/clinicminds/raw?entityKey=cmPatient&updateNeeded=true&limit={{patientsRawLimit}}
+### List patient raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmPatient&stagingStatus=STAGING_NEEDED&limit={{patientsRawLimit}}
+Accept: application/json
+
+### Run patient stage conversion
+POST {{baseUrl}}/clinicminds/stage/cmPatient
+Content-Type: application/json
+Accept: application/json
+
+{
+}
+
+### List staged patient rows
+GET {{baseUrl}}/clinicminds/stage/patients?limit={{patientsRawLimit}}
+Accept: application/json
+
+### List patient stage runs
+GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmPatient&limit={{patientsSyncRunsLimit}}
 Accept: application/json

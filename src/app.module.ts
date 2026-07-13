@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 
+import { appExecutionConfig } from './config/app-execution.config';
 import { clinicmindsConfig } from './config/clinicminds.config';
 import { ClinicmindsModule } from './modules/clinicminds/clinicminds.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -12,7 +13,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [clinicmindsConfig],
+      load: [appExecutionConfig, clinicmindsConfig],
     }),
     PrismaModule,
     ClinicmindsModule,

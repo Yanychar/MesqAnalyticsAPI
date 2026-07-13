@@ -7,7 +7,7 @@
 @appointmentsRawLimit = 20
 
 ### Appointment request with editable booking-date filter
-GET {{baseUrl}}/clinicminds/appointments?date2_from={{appointmentsDateFrom}}&date2_to={{appointmentsDateTo}}&format={{appointmentsFormat}}&saveLog={{appointmentsSaveLog}}
+GET {{baseUrl}}/clinicminds/appointments?booking_from={{appointmentsDateFrom}}&booking_to={{appointmentsDateTo}}&format={{appointmentsFormat}}&saveLog={{appointmentsSaveLog}}
 Accept: application/json
 
 ### Run appointment sync with automatic booking-date gap logic
@@ -29,8 +29,8 @@ Accept: application/json
   "format": "{{appointmentsFormat}}",
   "saveRequestLog": true,
   "params": {
-    "date2_from": "{{appointmentsDateFrom}}",
-    "date2_to": "{{appointmentsDateTo}}"
+    "booking_from": "{{appointmentsDateFrom}}",
+    "booking_to": "{{appointmentsDateTo}}"
   }
 }
 
@@ -42,6 +42,6 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/raw?entityKey=cmAppointment&limit={{appointmentsRawLimit}}
 Accept: application/json
 
-### List appointment raw rows that need update
-GET {{baseUrl}}/clinicminds/raw?entityKey=cmAppointment&updateNeeded=true&limit={{appointmentsRawLimit}}
+### List appointment raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmAppointment&stagingStatus=STAGING_NEEDED&limit={{appointmentsRawLimit}}
 Accept: application/json

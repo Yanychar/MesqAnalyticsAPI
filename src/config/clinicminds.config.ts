@@ -6,6 +6,7 @@ export interface ClinicmindsConfig {
   timeoutMs: number;
   defaultFormat: 'json' | 'csv' | 'scsv';
   userAgent: string;
+  locationId: number | null;
 }
 
 export const clinicmindsConfig = registerAs(
@@ -20,5 +21,8 @@ export const clinicmindsConfig = registerAs(
     userAgent:
       process.env.CLINICMINDS_USER_AGENT ??
       'AppointmentsHandler/1.0 (+serge.sevastianov@medfin.fi)',
+    locationId: process.env.CLINICMINDS_LOCATION_ID
+      ? Number(process.env.CLINICMINDS_LOCATION_ID)
+      : null,
   }),
 );

@@ -6,7 +6,7 @@
 @syncContinueOnError = true
 @syncRunsLimit = 20
 @rawLimit = 20
-@rawUpdateNeeded = false
+@rawStagingStatus = STAGING_NEEDED
 
 ### List sync entities loaded from config
 GET {{baseUrl}}/clinicminds/sync/entities
@@ -51,6 +51,6 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/raw?limit={{rawLimit}}
 Accept: application/json
 
-### List raw rows by updateNeeded flag
-GET {{baseUrl}}/clinicminds/raw?updateNeeded={{rawUpdateNeeded}}&limit={{rawLimit}}
+### List raw rows by staging status
+GET {{baseUrl}}/clinicminds/raw?stagingStatus={{rawStagingStatus}}&limit={{rawLimit}}
 Accept: application/json

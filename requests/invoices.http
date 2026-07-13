@@ -1,0 +1,64 @@
+@baseUrl = http://localhost:3020
+@invoiceDateFrom = 2026-07-08
+@invoiceDateTo = 2026-07-08
+@invoiceFormat = json
+@invoiceSaveLog = true
+@invoiceSyncRunsLimit = 20
+@invoiceRawLimit = 20
+@invoiceStageLimit = 20
+
+### Invoice request with editable invoice-date filter
+GET {{baseUrl}}/clinicminds/invoices?date_from={{invoiceDateFrom}}&date_to={{invoiceDateTo}}&format={{invoiceFormat}}&saveLog={{invoiceSaveLog}}
+Accept: application/json
+
+### Run invoice sync with automatic date_window catch-up logic from 2026-01-01
+POST {{baseUrl}}/clinicminds/sync/cmInvoice
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{invoiceFormat}}",
+  "saveRequestLog": true
+}
+
+### Run invoice sync with explicit invoice-date filter
+POST {{baseUrl}}/clinicminds/sync/cmInvoice
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{invoiceFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "date_from": "{{invoiceDateFrom}}",
+    "date_to": "{{invoiceDateTo}}"
+  }
+}
+
+### List invoice sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmInvoice&limit={{invoiceSyncRunsLimit}}
+Accept: application/json
+
+### List invoice raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmInvoice&limit={{invoiceRawLimit}}
+Accept: application/json
+
+### List invoice raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmInvoice&stagingStatus=STAGING_NEEDED&limit={{invoiceRawLimit}}
+Accept: application/json
+
+### Run invoice stage conversion
+POST {{baseUrl}}/clinicminds/stage/cmInvoice
+Content-Type: application/json
+Accept: application/json
+
+{
+}
+
+### List invoice stage runs
+GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmInvoice&limit={{invoiceStageLimit}}
+Accept: application/json
+
+### List staged invoices with tax, payment, treatment, and product sections
+GET {{baseUrl}}/clinicminds/stage/invoices?limit={{invoiceStageLimit}}
+Accept: application/json

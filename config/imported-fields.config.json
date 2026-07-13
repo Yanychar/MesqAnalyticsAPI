@@ -988,8 +988,8 @@
       {
         "key": "americanExpress",
         "sourceColumn": "American Express",
-        "description": "Field imported from Clinicminds column \"American Express\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"American Express\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -997,8 +997,8 @@
       {
         "key": "bankTransfer",
         "sourceColumn": "Bank transfer",
-        "description": "Field imported from Clinicminds column \"Bank transfer\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Bank transfer\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1006,8 +1006,8 @@
       {
         "key": "cash",
         "sourceColumn": "Cash",
-        "description": "Field imported from Clinicminds column \"Cash\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Cash\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1015,8 +1015,8 @@
       {
         "key": "giftCard",
         "sourceColumn": "Gift card",
-        "description": "Field imported from Clinicminds column \"Gift card\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Gift card\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1024,8 +1024,8 @@
       {
         "key": "maestro",
         "sourceColumn": "Maestro",
-        "description": "Field imported from Clinicminds column \"Maestro\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Maestro\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1033,8 +1033,8 @@
       {
         "key": "mastercard",
         "sourceColumn": "MasterCard",
-        "description": "Field imported from Clinicminds column \"MasterCard\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"MasterCard\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1042,8 +1042,8 @@
       {
         "key": "stripe",
         "sourceColumn": "Stripe",
-        "description": "Field imported from Clinicminds column \"Stripe\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Stripe\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1051,8 +1051,8 @@
       {
         "key": "visa",
         "sourceColumn": "Visa",
-        "description": "Field imported from Clinicminds column \"Visa\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Visa\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1060,8 +1060,8 @@
       {
         "key": "wallet",
         "sourceColumn": "Wallet",
-        "description": "Field imported from Clinicminds column \"Wallet\".",
-        "dataType": "string",
+        "description": "Payment-method amount imported from Clinicminds column \"Wallet\". During staging this becomes one CmInvoicePayment row.",
+        "dataType": "number",
         "isColumn": true,
         "filterable": true,
         "includeInAiContext": true
@@ -1069,7 +1069,7 @@
       {
         "key": "total",
         "sourceColumn": "Total",
-        "description": "Field imported from Clinicminds column \"Total\".",
+        "description": "Payment methods total imported from Clinicminds column \"Total\". During staging this is stored in CmInvoice.totalPaid instead of CmInvoicePayment.",
         "dataType": "number",
         "isColumn": true,
         "filterable": true,
@@ -1113,8 +1113,8 @@
       },
       {
         "key": "crMeMilleHydratanteMariaGalland",
-        "sourceColumn": "Cr\u00e8me Mille Hydratante (Maria Galland)",
-        "description": "Field imported from Clinicminds column \"Cr\u00e8me Mille Hydratante (Maria Galland)\".",
+        "sourceColumn": "Crème Mille Hydratante (Maria Galland)",
+        "description": "Field imported from Clinicminds column \"Crème Mille Hydratante (Maria Galland)\".",
         "dataType": "string",
         "isColumn": true,
         "filterable": true,
@@ -1571,6 +1571,103 @@
         "dataType": "object",
         "isColumn": true,
         "includeInAiContext": false
+      }
+    ]
+  },
+  "cmMaterialTreatment": {
+    "targetTable": "cm_treatment",
+    "sourceReportFile": "cm-reports/Treatment material stock.csv",
+    "notes": "Current stock snapshot per treatment material from Clinicminds Administration reports.",
+    "fields": [
+      {
+        "key": "treatment",
+        "sourceColumn": "Treatment",
+        "description": "Treatment material name shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "brand",
+        "sourceColumn": "Brand",
+        "description": "Brand of the treatment material.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "supplier",
+        "sourceColumn": "Supplier",
+        "description": "Supplier shown in the stock report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "articleNumber",
+        "sourceColumn": "Article number",
+        "description": "Supplier or internal article number for the material.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "unit",
+        "sourceColumn": "Unit",
+        "description": "Storage or sales unit of the material, for example syringe.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "salesPriceInclTaxes",
+        "sourceColumn": "Sales price (incl. taxes)",
+        "description": "Sales price including taxes from the stock report.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "purchasePrice",
+        "sourceColumn": "Purchase price",
+        "description": "Purchase price shown by Clinicminds.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "stock",
+        "sourceColumn": "Stock",
+        "description": "Current stock quantity for the treatment material.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "minimumStock",
+        "sourceColumn": "Minimum stock",
+        "description": "Configured minimum stock quantity.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "stockValue",
+        "sourceColumn": "Stock value",
+        "description": "Calculated stock value from the report.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
       }
     ]
   }

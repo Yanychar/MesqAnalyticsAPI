@@ -23,37 +23,215 @@ model ApiRequestLog {
 }
 
 model ClinicmindsSyncRun {
-  id           BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
-  entityKey    String
-  operationId  String
-  requestPath  String
+  id            BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  entityKey     String
+  operationId   String
+  requestPath   String
   requestParams Json
-  startedAt    DateTime               @default(now())
+  startedAt     DateTime              @default(now())
+  completedAt   DateTime?
+  status        ClinicmindsSyncStatus @default(RUNNING)
+  error         String?
+  fetchedCount  Int                   @default(0)
+  storedCount   Int                   @default(0)
+  rawRecords    ClinicmindsRawRecord[]
+
+  @@index([entityKey, startedAt])
+  @@index([status, startedAt])
+}
+
+model ClinicmindsStageRun {
+  id           BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  entityKey    String
+  targetTable  String
+  startedAt    DateTime                  @default(now())
   completedAt  DateTime?
-  status       ClinicmindsSyncStatus  @default(RUNNING)
+  status       ClinicmindsStageRunStatus @default(RUNNING)
   error        String?
-  fetchedCount Int                    @default(0)
-  storedCount  Int                    @default(0)
-  rawRecords   ClinicmindsRawRecord[]
+  scannedCount Int                       @default(0)
+  stagedCount  Int                       @default(0)
+  failedCount  Int                       @default(0)
 
   @@index([entityKey, startedAt])
   @@index([status, startedAt])
 }
 
 model ClinicmindsRawRecord {
-  id           BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
-  syncRunId    BigInt             @db.UnsignedBigInt
-  entityKey    String
-  externalId   String?
-  updateNeeded Boolean            @default(false)
-  rowIndex     Int
-  payload      Json
-  fetchedAt    DateTime           @default(now())
-  syncRun      ClinicmindsSyncRun @relation(fields: [syncRunId], references: [id], onDelete: Cascade)
+  id            BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  syncRunId     BigInt                   @db.UnsignedBigInt
+  entityKey     String
+  externalId    String?
+  stagingStatus ClinicmindsStagingStatus @default(STAGING_NEEDED)
+  stagedAt      DateTime?
+  rowIndex      Int
+  payload       Json
+  fetchedAt     DateTime                 @default(now())
+  syncRun       ClinicmindsSyncRun       @relation(fields: [syncRunId], references: [id], onDelete: Cascade)
 
   @@unique([syncRunId, rowIndex])
   @@index([entityKey])
-  @@index([entityKey, updateNeeded])
+  @@index([entityKey, stagingStatus])
+}
+
+model CmPatient {
+  id                           BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  lastRawRecordId              BigInt?  @unique @db.UnsignedBigInt
+  entityKey                    String   @default("cmPatient")
+  externalId                   String?
+  patientNumber                String   @unique
+  nationalIdentificationNumber String?
+  sex                          String?
+  initials                     String?
+  firstName                    String?
+  lastName                     String?
+  dateOfBirth                  String?
+  emailAddress                 String?
+  phoneNumber                  String?
+  mobileNumber                 String?
+  registered                   String?
+  payload                      Json
+  createdAt                    DateTime @default(now())
+  updatedAt                    DateTime @updatedAt
+
+  @@index([lastName, firstName])
+}
+
+model CmInvoice {
+  id                           BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  lastRawRecordId              BigInt?                   @unique @db.UnsignedBigInt
+  entityKey                    String                    @default("cmInvoice")
+  externalId                   String?
+  invoiceNumber                String                    @unique
+  patientNumber                String?
+  nationalIdentificationNumber String?
+  address                      String?
+  emailAddress                 String?
+  phoneNumber                  String?
+  mobileNumber                 String?
+  referral                     String?
+  invoiceDate                  String?
+  dueDate                      String?
+  location                     String?
+  user                         String?
+  taxExempted                  String?
+  discountNotes                String?
+  discountExclTaxes            Decimal?                  @db.Decimal(12, 2)
+  totalExclTaxes               Decimal?                  @db.Decimal(12, 2)
+  totalInclTaxes               Decimal?                  @db.Decimal(12, 2)
+  totalTax                     Decimal?                  @db.Decimal(12, 2)
+  treatmentTotal               Decimal?                  @db.Decimal(12, 2)
+  totalGiftcard               Decimal?                  @db.Decimal(12, 2)
+  totalPaid                    Decimal?                  @db.Decimal(12, 2)
+  outstanding                  Decimal?                  @db.Decimal(12, 2)
+  payload                      Json
+  createdAt                    DateTime                  @default(now())
+  updatedAt                    DateTime                  @updatedAt
+  taxRows                      CmInvoiceTax[]
+  paymentRows                  CmInvoicePayment[]
+  treatmentRows                CmInvoiceTreatment[]
+  productRows                  CmInvoiceProduct[]
+  materialRows                 CmInvoiceMaterial[]
+
+  @@index([invoiceDate])
+  @@index([patientNumber, invoiceDate])
+  @@index([location, invoiceDate])
+  @@index([user, invoiceDate])
+}
+
+model CmInvoiceTax {
+  id        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId BigInt    @db.UnsignedBigInt
+  taxName   String
+  amount    Decimal?  @db.Decimal(12, 2)
+  createdAt DateTime  @default(now())
+  invoice   CmInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([taxName])
+}
+
+model CmInvoicePayment {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId     BigInt    @db.UnsignedBigInt
+  paymentMethod String
+  amount        Decimal?  @db.Decimal(12, 2)
+  createdAt     DateTime  @default(now())
+  invoice       CmInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paymentMethod])
+}
+
+model CmInvoiceTreatment {
+  id          BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId   BigInt      @db.UnsignedBigInt
+  treatmentId BigInt      @db.UnsignedBigInt
+  amount      Decimal?    @db.Decimal(12, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  invoice     CmInvoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  treatment   CmTreatment @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([treatmentId])
+}
+
+model CmInvoiceProduct {
+  id            BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId BigInt        @db.UnsignedBigInt
+  displayOrder  Int
+  fieldKey      String
+  label         String
+  amount        Decimal?       @db.Decimal(12, 2)
+  rawValue      String?
+  createdAt     DateTime       @default(now())
+  invoice       CmInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId, displayOrder])
+}
+
+model CmInvoiceMaterial {
+  id          BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId   BigInt      @db.UnsignedBigInt
+  treatmentId BigInt      @db.UnsignedBigInt
+  quantity    Decimal?    @db.Decimal(12, 2)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  invoice     CmInvoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  treatment   CmTreatment @relation(fields: [treatmentId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([treatmentId])
+}
+
+model CmTreatment {
+  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  lastRawRecordId     BigInt?  @unique @db.UnsignedBigInt
+  entityKey           String   @default("cmMaterialTreatment")
+  externalId          String
+  locationId          Int
+  treatment           String
+  brand               String?
+  supplier            String?
+  articleNumber       String?
+  unit                String?
+  materialStock       Boolean  @default(true)
+  salesPriceInclTaxes Decimal? @db.Decimal(12, 2)
+  purchasePrice       Decimal? @db.Decimal(12, 2)
+  stock               Decimal? @db.Decimal(12, 2)
+  minimumStock        Decimal? @db.Decimal(12, 2)
+  stockValue          Decimal? @db.Decimal(12, 2)
+  payload             Json
+  invoiceMaterials    CmInvoiceMaterial[]
+  invoiceTreatments   CmInvoiceTreatment[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([locationId, treatment])
+  @@index([locationId, brand])
+  @@index([articleNumber])
+  @@index([materialStock])
+  @@unique([externalId, materialStock])
 }
 
 enum ApiRequestStatus {
@@ -63,6 +241,18 @@ enum ApiRequestStatus {
 }
 
 enum ClinicmindsSyncStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum ClinicmindsStagingStatus {
+  STAGING_NEEDED
+  STAGING_DONE
+  STAGING_ERROR
+}
+
+enum ClinicmindsStageRunStatus {
   RUNNING
   SUCCEEDED
   FAILED

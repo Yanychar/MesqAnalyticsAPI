@@ -1,0 +1,47 @@
+@baseUrl = http://localhost:3020
+@productSalesDateFrom = 2026-01-01
+@productSalesDateTo = 2026-07-07
+@productSalesFormat = json
+@productSalesSaveLog = true
+@productSalesSyncRunsLimit = 20
+@productSalesRawLimit = 20
+
+### Product sales request with editable sale-date filter
+GET {{baseUrl}}/clinicminds/product-sales?date_from={{productSalesDateFrom}}&date_to={{productSalesDateTo}}&format={{productSalesFormat}}&saveLog={{productSalesSaveLog}}
+Accept: application/json
+
+### Run product sales sync with current config-driven logic
+POST {{baseUrl}}/clinicminds/sync/cmProductSale
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{productSalesFormat}}",
+  "saveRequestLog": true
+}
+
+### Run product sales sync with explicit sale-date filter
+POST {{baseUrl}}/clinicminds/sync/cmProductSale
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{productSalesFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "date_from": "{{productSalesDateFrom}}",
+    "date_to": "{{productSalesDateTo}}"
+  }
+}
+
+### List product sale sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmProductSale&limit={{productSalesSyncRunsLimit}}
+Accept: application/json
+
+### List product sale raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmProductSale&limit={{productSalesRawLimit}}
+Accept: application/json
+
+### List product sale raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmProductSale&stagingStatus=STAGING_NEEDED&limit={{productSalesRawLimit}}
+Accept: application/json

@@ -1,0 +1,70 @@
+@baseUrl = http://localhost:3020
+@clinicmindsLocationId = 4422
+@treatmentMaterialStockFormat = json
+@treatmentMaterialStockSaveLog = true
+@treatmentMaterialStockSyncRunsLimit = 20
+@treatmentMaterialStockRawLimit = 20
+@treatmentMaterialStockStageLimit = 20
+
+### Treatment material stock request for one location snapshot
+GET {{baseUrl}}/clinicminds/treatment-material-stock?location_id={{clinicmindsLocationId}}&format={{treatmentMaterialStockFormat}}&saveLog={{treatmentMaterialStockSaveLog}}
+Accept: application/json
+
+### Run treatment material stock sync with config-driven fixed location
+POST {{baseUrl}}/clinicminds/sync/cmMaterialTreatment
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{treatmentMaterialStockFormat}}",
+  "saveRequestLog": true
+}
+
+### Run treatment material stock sync with explicit location override
+POST {{baseUrl}}/clinicminds/sync/cmMaterialTreatment
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{treatmentMaterialStockFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "location_id": {{clinicmindsLocationId}}
+  }
+}
+
+### List treatment material stock sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmMaterialTreatment&limit={{treatmentMaterialStockSyncRunsLimit}}
+Accept: application/json
+
+### List treatment material stock raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmMaterialTreatment&limit={{treatmentMaterialStockRawLimit}}
+Accept: application/json
+
+### List treatment material stock raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmMaterialTreatment&stagingStatus=STAGING_NEEDED&limit={{treatmentMaterialStockRawLimit}}
+Accept: application/json
+
+### Run treatment material stock stage conversion for all STAGING_NEEDED rows
+POST {{baseUrl}}/clinicminds/stage/cmMaterialTreatment
+Content-Type: application/json
+Accept: application/json
+
+{}
+
+### List treatment material stock stage runs
+GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmMaterialTreatment&limit={{treatmentMaterialStockStageLimit}}
+Accept: application/json
+
+### List staged treatment material stock rows
+GET {{baseUrl}}/clinicminds/stage/treatments?limit={{treatmentMaterialStockStageLimit}}
+Accept: application/json
+
+### Run treatment material stock stage conversion with explicit batch limit
+POST {{baseUrl}}/clinicminds/stage/cmMaterialTreatment
+Content-Type: application/json
+Accept: application/json
+
+{
+  "limit": {{treatmentMaterialStockStageLimit}}
+}
