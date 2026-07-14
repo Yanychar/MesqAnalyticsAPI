@@ -17,6 +17,7 @@ export interface ClinicmindsEntitySyncConfig {
   filtersFromSpec?: string[];
   notes?: string;
   enabled?: boolean;
+  runStageAfterRawSync?: boolean;
   cursorStartDate?: string;
   staticParams?: Record<string, ClinicmindsSyncPrimitive | null | undefined>;
   rawTableIndexes?: string[][];
@@ -42,5 +43,8 @@ export interface ClinicmindsSyncEntityResult {
   storedCount: number;
   syncRunId: string;
   status: 'SUCCEEDED' | 'FAILED';
+  stageTriggered?: boolean;
+  stageStatus?: 'SUCCEEDED' | 'FAILED' | 'SKIPPED';
+  stageError?: string;
   error?: string;
 }

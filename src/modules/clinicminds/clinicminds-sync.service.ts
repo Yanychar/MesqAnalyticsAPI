@@ -5,6 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ClinicmindsClient } from './clinicminds.client';
 import { ClinicmindsRequestLogService } from './clinicminds-request-log.service';
 import { ClinicmindsSyncConfigService } from './clinicminds-sync-config.service';
+import { ClinicmindsStageService } from './clinicminds-stage.service';
 import { ClinicmindsReportDefinition } from './types/clinicminds-report.types';
 import {
   ClinicmindsEntitySyncConfig,
@@ -23,6 +24,7 @@ export class ClinicmindsSyncService {
     private readonly clinicmindsClient: ClinicmindsClient,
     private readonly requestLogService: ClinicmindsRequestLogService,
     private readonly syncConfigService: ClinicmindsSyncConfigService,
+    private readonly stageService: ClinicmindsStageService,
   ) {}
 
   listSyncEntities() {
@@ -195,6 +197,8 @@ export class ClinicmindsSyncService {
         `Synced ${entity.key}: fetched ${items.length}, stored ${rawRows.length}, request ${requestPath}`,
       );
 
+      const stageFollowUp = await this.runStageAfterRawSyncIfConfigured(entity);
+
       return {
         entityKey: entity.key,
         operationId: operation.operationId,
@@ -203,6 +207,9 @@ export class ClinicmindsSyncService {
         storedCount: rawRows.length,
         syncRunId: String(syncRun.id),
         status: 'SUCCEEDED',
+        stageTriggered: stageFollowUp.triggered,
+        stageStatus: stageFollowUp.status,
+        stageError: stageFollowUp.error,
       };
     } catch (error) {
       await this.prisma.clinicmindsSyncRun.update({
@@ -219,6 +226,30 @@ export class ClinicmindsSyncService {
       }
 
       throw error;
+    }
+  }
+
+  private async runStageAfterRawSyncIfConfigured(
+    entity: ClinicmindsEntitySyncConfig,
+  ): Promise<{ triggered: boolean; status?: 'SUCCEEDED' | 'FAILED' | 'SKIPPED'; error?: string }> {
+    if (!entity.runStageAfterRawSync) {
+      return { triggered: false, status: 'SKIPPED' };
+    }
+
+    const supportedStageEntityKeys = new Set(this.stageService.listStageEntities().map((item) => item.entityKey));
+    if (!supportedStageEntityKeys.has(entity.key)) {
+      this.logger.warn(`Stage follow-up is configured for ${entity.key}, but no stage implementation exists.`);
+      return { triggered: false, status: 'SKIPPED' };
+    }
+
+    try {
+      await this.stageService.runEntity(entity.key);
+      this.logger.log(`Triggered stage follow-up for ${entity.key} after raw sync.`);
+      return { triggered: true, status: 'SUCCEEDED' };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown stage error';
+      this.logger.error(`Stage follow-up failed for ${entity.key}: ${message}`);
+      return { triggered: true, status: 'FAILED', error: message };
     }
   }
 

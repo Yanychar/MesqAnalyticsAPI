@@ -4,7 +4,7 @@
     "label": "CM Patient",
     "endpoint": "/api/analytics/patients",
     "targetTable": "cm_patient",
-    "cron": "30 2 * * *",
+    "cron": "30 23 * * *",
     "mode": "full_replace",
     "externalIdField": "patientNumber",
     "readStrategy": "full_replace",
@@ -33,14 +33,15 @@
         "firstName",
         "dateOfBirth"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": true
   },
   {
     "key": "cmAppointment",
     "label": "CM Appointment",
     "endpoint": "/api/analytics/appointments",
     "targetTable": "cm_appointment",
-    "cron": "30 3 * * *",
+    "cron": "0 1 * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
     "readStrategy": "date_window",
@@ -77,14 +78,15 @@
       [
         "bookingDate"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": false
   },
   {
     "key": "cmOnlineBooking",
     "label": "CM Online Booking",
     "endpoint": "/api/analytics/online-bookings",
     "targetTable": "cm_online_booking",
-    "cron": "5 * * * *",
+    "cron": "15 1 * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
     "readStrategy": "date_window",
@@ -121,14 +123,15 @@
       [
         "bookingDate"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": false
   },
   {
     "key": "cmInvoice",
     "label": "CM Invoice",
     "endpoint": "/api/analytics/invoices",
     "targetTable": "cm_invoice",
-    "cron": "*/30 * * * *",
+    "cron": "0 0 * * *",
     "mode": "incremental",
     "externalIdField": "invoiceDate",
     "readStrategy": "date_window",
@@ -166,14 +169,15 @@
         "user",
         "invoiceDate"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": true
   },
   {
     "key": "cmProductSale",
     "label": "CM Product Sale",
     "endpoint": "/api/analytics/product-sales",
     "targetTable": "cm_product_sale",
-    "cron": "0 * * * *",
+    "cron": "30 1 * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
     "readStrategy": "date_window",
@@ -212,14 +216,15 @@
         "user",
         "saleDate"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": false
   },
   {
     "key": "cmTreatment",
     "label": "CM Treatment",
     "endpoint": "/api/analytics/treatments",
     "targetTable": "cm_treatment",
-    "cron": "10 * * * *",
+    "cron": "45 1 * * *",
     "mode": "incremental",
     "externalIdField": "patientNumber",
     "readStrategy": "rolling_date_window",
@@ -259,14 +264,15 @@
         "practitioner",
         "treatmentDate"
       ]
-    ]
+    ],
+    "runStageAfterRawSync": false
   },
   {
     "key": "cmMaterialTreatment",
     "label": "CM Material Treatment",
     "endpoint": "/api/analytics/treatment-material-stock",
     "targetTable": "cm_treatment",
-    "cron": "15 1 * * *",
+    "cron": "0 23 * * *",
     "mode": "full_replace",
     "readStrategy": "full_replace",
     "filtersFromSpec": [
@@ -298,6 +304,7 @@
       "treatment",
       "brand",
       "unit"
-    ]
+    ],
+    "runStageAfterRawSync": true
   }
 ]

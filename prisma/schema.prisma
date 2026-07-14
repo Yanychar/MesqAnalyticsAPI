@@ -120,6 +120,7 @@ model CmInvoice {
   totalInclTaxes               Decimal?                  @db.Decimal(12, 2)
   totalTax                     Decimal?                  @db.Decimal(12, 2)
   treatmentTotal               Decimal?                  @db.Decimal(12, 2)
+  totalPackages               Decimal?                  @db.Decimal(12, 2)
   totalGiftcard               Decimal?                  @db.Decimal(12, 2)
   totalPaid                    Decimal?                  @db.Decimal(12, 2)
   outstanding                  Decimal?                  @db.Decimal(12, 2)
@@ -129,6 +130,7 @@ model CmInvoice {
   taxRows                      CmInvoiceTax[]
   paymentRows                  CmInvoicePayment[]
   treatmentRows                CmInvoiceTreatment[]
+  packageRows                  CmInvoicePackage[]
   productRows                  CmInvoiceProduct[]
   materialRows                 CmInvoiceMaterial[]
 
@@ -176,6 +178,20 @@ model CmInvoiceTreatment {
   @@index([treatmentId])
 }
 
+model CmInvoicePackage {
+  id        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  invoiceId BigInt    @db.UnsignedBigInt
+  packageId BigInt    @db.UnsignedBigInt
+  amount    Decimal?  @db.Decimal(12, 2)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  invoice   CmInvoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  package   CmPackage @relation(fields: [packageId], references: [id], onDelete: Restrict)
+
+  @@index([invoiceId])
+  @@index([packageId])
+}
+
 model CmInvoiceProduct {
   id            BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
   invoiceId BigInt        @db.UnsignedBigInt
@@ -204,6 +220,22 @@ model CmInvoiceMaterial {
   @@index([treatmentId])
 }
 
+model CmPackage {
+  id                BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  externalId        String             @unique
+  packageName       String
+  description       String?
+  linkedTreatmentId BigInt?            @db.UnsignedBigInt
+  treatmentCount    Int?
+  payload           Json
+  invoicePackages   CmInvoicePackage[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([packageName])
+  @@index([linkedTreatmentId])
+}
+
 model CmTreatment {
   id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   lastRawRecordId     BigInt?  @unique @db.UnsignedBigInt
@@ -216,6 +248,8 @@ model CmTreatment {
   articleNumber       String?
   unit                String?
   materialStock       Boolean  @default(true)
+  inventoryConfirmed  Boolean  @default(false)
+  manualReviewNeeded  Boolean  @default(false)
   salesPriceInclTaxes Decimal? @db.Decimal(12, 2)
   purchasePrice       Decimal? @db.Decimal(12, 2)
   stock               Decimal? @db.Decimal(12, 2)
@@ -231,6 +265,7 @@ model CmTreatment {
   @@index([locationId, brand])
   @@index([articleNumber])
   @@index([materialStock])
+  @@index([inventoryConfirmed, manualReviewNeeded])
   @@unique([externalId, materialStock])
 }
 

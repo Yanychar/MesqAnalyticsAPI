@@ -47,6 +47,12 @@ interface InvoiceTreatmentRow {
   amount: string;
 }
 
+interface InvoicePackageRow {
+  label: string;
+  externalId: string;
+  amount: string;
+}
+
 const INVOICE_SECTION_DEFINITIONS = {
   tax: {
     startOrder: 20,
@@ -147,6 +153,7 @@ export class ClinicmindsStageService {
         taxRows: { orderBy: { taxName: 'asc' } },
         paymentRows: { orderBy: { paymentMethod: 'asc' } },
         treatmentRows: { orderBy: { id: 'asc' } },
+        packageRows: { orderBy: { id: 'asc' } },
         productRows: { orderBy: { displayOrder: 'asc' } },
         materialRows: { orderBy: { id: 'asc' } },
       },
@@ -314,6 +321,7 @@ export class ClinicmindsStageService {
         const paymentMethods = this.getNestedSection(payload, 'Payment methods');
         const giftCards = this.getNestedSection(payload, 'Gift cards');
         const treatmentsExclTaxes = this.getNestedSection(payload, 'Treatments (excl. taxes)');
+        const packagesExclTaxes = this.getNestedSection(payload, 'Packages (excl. taxes)');
         const productsExclTaxes = this.getNestedSection(payload, 'Products (excl. taxes)');
         const treatmentMaterials = this.getNestedSection(payload, 'Treatment materials');
         const invoiceNumber = this.toNullableString(this.findNestedValue(payload, 'Invoice number'));
@@ -346,6 +354,7 @@ export class ClinicmindsStageService {
               totalInclTaxes: this.toNullableDecimalString(invoiceData['Total (incl. taxes)']),
               totalTax: this.toNullableDecimalString(taxes.Total),
               treatmentTotal: this.toNullableDecimalString(treatmentsExclTaxes.Total),
+              totalPackages: this.toNullableDecimalString(packagesExclTaxes.Total),
               totalGiftcard: this.toNullableDecimalString(giftCards.Total),
               totalPaid: this.toNullableDecimalString(paymentMethods.Total),
               outstanding: this.toNullableDecimalString(invoiceData.Outstanding),
@@ -373,6 +382,7 @@ export class ClinicmindsStageService {
               totalInclTaxes: this.toNullableDecimalString(invoiceData['Total (incl. taxes)']),
               totalTax: this.toNullableDecimalString(taxes.Total),
               treatmentTotal: this.toNullableDecimalString(treatmentsExclTaxes.Total),
+              totalPackages: this.toNullableDecimalString(packagesExclTaxes.Total),
               totalGiftcard: this.toNullableDecimalString(giftCards.Total),
               totalPaid: this.toNullableDecimalString(paymentMethods.Total),
               outstanding: this.toNullableDecimalString(invoiceData.Outstanding),
@@ -383,6 +393,7 @@ export class ClinicmindsStageService {
           await tx.cmInvoiceTax.deleteMany({ where: { invoiceId: invoice.id } });
           await tx.cmInvoicePayment.deleteMany({ where: { invoiceId: invoice.id } });
           await tx.cmInvoiceTreatment.deleteMany({ where: { invoiceId: invoice.id } });
+          await tx.cmInvoicePackage.deleteMany({ where: { invoiceId: invoice.id } });
           await tx.cmInvoiceProduct.deleteMany({ where: { invoiceId: invoice.id } });
           await tx.cmInvoiceMaterial.deleteMany({ where: { invoiceId: invoice.id } });
 
@@ -398,17 +409,19 @@ export class ClinicmindsStageService {
           }
 
           const paymentRows = this.buildInvoicePaymentRows(paymentMethods);
-          if (paymentRows.length > 0) {
+          const paymentRowsToStore = this.buildStoredInvoicePaymentRows(paymentRows, paymentMethods.Total);
+          if (paymentRowsToStore.length > 0) {
             await tx.cmInvoicePayment.createMany({
-              data: paymentRows.map((item) => ({
+              data: paymentRowsToStore.map((item) => ({
                 invoiceId: invoice.id,
-                paymentMethod: item.label,
-                amount: item.decimalValue,
+                paymentMethod: item.paymentMethod,
+                amount: item.amount,
               })),
             });
           }
 
           const treatmentRows = this.buildInvoiceTreatmentRows(treatmentsExclTaxes);
+          const packageRows = this.buildInvoicePackageRows(packagesExclTaxes);
           const materialRows = this.buildInvoiceMaterialRows(treatmentMaterials);
           const fallbackLocationId = this.getConfiguredTreatmentLocationId();
 
@@ -436,10 +449,30 @@ export class ClinicmindsStageService {
             });
           }
 
+          for (const item of packageRows) {
+            const invoicePackage = await this.ensurePackageRecord(tx, {
+              externalId: item.externalId,
+              packageName: item.label,
+              payload: {
+                source: 'cmInvoice',
+                sourceBlock: 'Packages (excl. taxes)',
+                label: item.label,
+              },
+            });
+
+            await tx.cmInvoicePackage.create({
+              data: {
+                invoiceId: invoice.id,
+                packageId: invoicePackage.id,
+                amount: item.amount,
+              },
+            });
+          }
+
           const productRows = this.buildInvoiceSectionRows(
             productsExclTaxes,
             INVOICE_SECTION_DEFINITIONS.productAmount,
-          );
+          ).filter((item) => item.decimalValue !== null && item.decimalValue !== '0');
           if (productRows.length > 0) {
             await tx.cmInvoiceProduct.createMany({
               data: productRows.map((item) => ({
@@ -466,6 +499,7 @@ export class ClinicmindsStageService {
                 sourceBlock: 'Treatment materials',
                 label: item.label,
               },
+              source: 'invoice',
             });
 
             await tx.cmInvoiceMaterial.create({
@@ -580,6 +614,8 @@ export class ClinicmindsStageService {
             supplier: this.toNullableString(normalized.supplier),
             articleNumber: this.toNullableString(normalized.articleNumber),
             unit,
+            inventoryConfirmed: true,
+            manualReviewNeeded: false,
             salesPriceInclTaxes: this.toNullableDecimalString(normalized.salesPriceInclTaxes),
             purchasePrice: this.toNullableDecimalString(normalized.purchasePrice),
             stock: this.toNullableDecimalString(normalized.stock),
@@ -598,6 +634,8 @@ export class ClinicmindsStageService {
             supplier: this.toNullableString(normalized.supplier),
             articleNumber: this.toNullableString(normalized.articleNumber),
             unit,
+            inventoryConfirmed: true,
+            manualReviewNeeded: false,
             salesPriceInclTaxes: this.toNullableDecimalString(normalized.salesPriceInclTaxes),
             purchasePrice: this.toNullableDecimalString(normalized.purchasePrice),
             stock: this.toNullableDecimalString(normalized.stock),
@@ -717,6 +755,21 @@ export class ClinicmindsStageService {
       }));
   }
 
+  private buildInvoicePackageRows(section: Record<string, unknown>): InvoicePackageRow[] {
+    return Object.entries(section)
+      .filter(([label]) => label !== 'Total')
+      .map(([label, value]) => ({
+        label,
+        amount: this.toNullableDecimalString(value),
+      }))
+      .filter((item): item is { label: string; amount: string } => item.amount !== null && item.amount !== '0')
+      .map((item) => ({
+        label: item.label,
+        externalId: item.label.trim(),
+        amount: item.amount,
+      }));
+  }
+
   private buildInvoicePaymentRows(section: Record<string, unknown>): InvoiceSectionRow[] {
     return Object.entries(section)
       .filter(([label]) => label !== 'Total')
@@ -729,6 +782,46 @@ export class ClinicmindsStageService {
       }))
       .filter((field) => field.decimalValue !== null && field.decimalValue !== '0');
   }
+
+  private buildStoredInvoicePaymentRows(
+    paymentRows: InvoiceSectionRow[],
+    totalValue: unknown,
+  ): Array<{ paymentMethod: string; amount: string }> {
+    const totalPaid = this.toNullableDecimalString(totalValue);
+    const rows = paymentRows
+      .filter((row): row is InvoiceSectionRow & { decimalValue: string } => row.decimalValue !== null)
+      .map((row) => ({
+        paymentMethod: row.label,
+        amount: row.decimalValue,
+      }));
+
+    if (totalPaid === null) {
+      return rows;
+    }
+
+    const stagedSum = rows.reduce((sum, row) => sum + Number(row.amount), 0);
+    const totalPaidNumber = Number(totalPaid);
+    const difference = Number((totalPaidNumber - stagedSum).toFixed(2));
+
+    if (rows.length === 0 && totalPaidNumber > 0) {
+      return [
+        {
+          paymentMethod: 'Unallocated payment methods',
+          amount: totalPaid,
+        },
+      ];
+    }
+
+    if (difference > 0) {
+      rows.push({
+        paymentMethod: 'Unallocated payment methods',
+        amount: difference.toFixed(2),
+      });
+    }
+
+    return rows;
+  }
+
 
   private buildInvoiceTaxRows(section: Record<string, unknown>): InvoiceSectionRow[] {
     return Object.entries(section)
@@ -833,6 +926,33 @@ export class ClinicmindsStageService {
     return configuredLocationId;
   }
 
+  private async ensurePackageRecord(
+    tx: Prisma.TransactionClient,
+    input: {
+      externalId: string;
+      packageName: string;
+      payload: Prisma.InputJsonValue;
+    },
+  ) {
+    // Package catalog rows are preserved across invoice restaging. We upsert
+    // the reusable package definition here, while CmInvoicePackage rows are
+    // still rebuilt per invoice together with the other invoice child tables.
+    return tx.cmPackage.upsert({
+      where: {
+        externalId: input.externalId,
+      },
+      update: {
+        packageName: input.packageName,
+        payload: input.payload,
+      },
+      create: {
+        externalId: input.externalId,
+        packageName: input.packageName,
+        payload: input.payload,
+      },
+    });
+  }
+
   private async ensureTreatmentRecord(
     tx: Prisma.TransactionClient,
     input: {
@@ -843,8 +963,31 @@ export class ClinicmindsStageService {
       materialStock: boolean;
       locationId: number;
       payload: Prisma.InputJsonValue;
+      source?: 'invoice' | 'inventory';
     },
   ) {
+    const existing = await tx.cmTreatment.findUnique({
+      where: {
+        externalId_materialStock: {
+          externalId: input.externalId,
+          materialStock: input.materialStock,
+        },
+      },
+    });
+
+    if (input.materialStock && input.source === 'invoice' && (!existing || existing.inventoryConfirmed === false)) {
+      this.logger.error(
+        `Material treatment requires manual review because it exists in invoice usage but not in stock inventory: ${input.externalId}`,
+      );
+    }
+
+    const inventoryConfirmed = input.materialStock
+      ? input.source === 'inventory' || existing?.inventoryConfirmed === true
+      : false;
+    const manualReviewNeeded = input.materialStock
+      ? inventoryConfirmed ? false : true
+      : false;
+
     return tx.cmTreatment.upsert({
       where: {
         externalId_materialStock: {
@@ -859,6 +1002,8 @@ export class ClinicmindsStageService {
         brand: input.brand,
         unit: input.unit,
         materialStock: input.materialStock,
+        inventoryConfirmed,
+        manualReviewNeeded,
         payload: input.payload,
       },
       create: {
@@ -869,6 +1014,8 @@ export class ClinicmindsStageService {
         brand: input.brand,
         unit: input.unit,
         materialStock: input.materialStock,
+        inventoryConfirmed,
+        manualReviewNeeded,
         payload: input.payload,
       },
     });
