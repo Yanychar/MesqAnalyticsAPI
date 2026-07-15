@@ -200,10 +200,10 @@ export class AppController {
     .stat-card { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 18px; padding: 14px 16px; min-width: 140px; }
     .stat-label { display: block; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
     .stat-value { display: block; margin-top: 6px; font-size: 1.4rem; font-weight: 700; }
-    .table-wrap { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: #fff; }
+    .table-wrap { border: 1px solid var(--border); border-radius: 20px; overflow: auto; background: #fff; max-height: 560px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
-    th { background: #f8fbff; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); white-space: pre-line; }
+    th { background: #f8fbff; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); white-space: pre-line; position: sticky; top: 0; z-index: 2; }
     td { font-size: 0.94rem; }
     tr:last-child td { border-bottom: 0; }
     .level-pill { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.04em; }
