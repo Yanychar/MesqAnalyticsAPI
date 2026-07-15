@@ -1,0 +1,26 @@
+@baseUrl = http://localhost:3020
+@reportKey = invoice-amounts
+@invoiceDateFrom = 2026-01-01
+@invoiceDateTo = 2026-12-31
+
+### List implemented reports
+GET {{baseUrl}}/reports
+Accept: application/json
+
+### Get one report definition
+GET {{baseUrl}}/reports/{{reportKey}}
+Accept: application/json
+
+### Run report preview
+POST {{baseUrl}}/reports/{{reportKey}}/run
+Content-Type: application/json
+Accept: application/json
+
+{
+  "invoiceDateFrom": "{{invoiceDateFrom}}",
+  "invoiceDateTo": "{{invoiceDateTo}}"
+}
+
+### Download report as CSV
+GET {{baseUrl}}/reports/{{reportKey}}/download?format=csv&invoiceDateFrom={{invoiceDateFrom}}&invoiceDateTo={{invoiceDateTo}}
+Accept: text/csv

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-
-import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 
+import { AppController } from './app.controller';
 import { appExecutionConfig } from './config/app-execution.config';
 import { clinicmindsConfig } from './config/clinicminds.config';
 import { ClinicmindsModule } from './modules/clinicminds/clinicminds.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   controllers: [AppController],
@@ -17,7 +17,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
     }),
     PrismaModule,
     ClinicmindsModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
-

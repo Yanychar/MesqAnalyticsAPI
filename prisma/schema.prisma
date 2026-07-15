@@ -7,6 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AppEvent {
+  id        BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  level     AppEventLevel
+  source    String
+  entityKey String?
+  title     String
+  message   String
+  payload   Json?
+  createdAt DateTime         @default(now())
+
+  @@index([level, createdAt])
+  @@index([entityKey, createdAt])
+  @@index([source, createdAt])
+}
+
 model ApiRequestLog {
   id           BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
   operationId  String
@@ -267,6 +282,12 @@ model CmTreatment {
   @@index([materialStock])
   @@index([inventoryConfirmed, manualReviewNeeded])
   @@unique([externalId, materialStock])
+}
+
+enum AppEventLevel {
+  INFO
+  WARN
+  ERROR
 }
 
 enum ApiRequestStatus {

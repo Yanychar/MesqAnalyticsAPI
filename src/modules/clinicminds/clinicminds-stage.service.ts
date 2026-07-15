@@ -1,5 +1,5 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
-import { ClinicmindsStageRunStatus, ClinicmindsStagingStatus, Prisma } from '@prisma/client';
+import { AppEventLevel, ClinicmindsStageRunStatus, ClinicmindsStagingStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 
 import { AppExecutionConfig } from 'src/config/app-execution.config';
@@ -976,9 +976,18 @@ export class ClinicmindsStageService {
     });
 
     if (input.materialStock && input.source === 'invoice' && (!existing || existing.inventoryConfirmed === false)) {
-      this.logger.error(
-        `Material treatment requires manual review because it exists in invoice usage but not in stock inventory: ${input.externalId}`,
-      );
+      const message = `Material treatment requires manual review because it exists in invoice usage but not in stock inventory: ${input.externalId}`;
+      this.logger.error(message);
+      await tx.appEvent.create({
+        data: {
+          level: AppEventLevel.ERROR,
+          source: 'ClinicmindsStageService',
+          entityKey: 'cmMaterialTreatment',
+          title: 'Invoice-only material treatment detected',
+          message,
+          payload: input.payload,
+        },
+      });
     }
 
     const inventoryConfirmed = input.materialStock
