@@ -35,7 +35,7 @@ export class ReportsController {
     const { format: _format, ...filters } = query;
     const file = await this.reportsService.downloadReport(
       reportKey,
-      format ?? 'csv',
+      format ?? 'xlsx',
       Object.fromEntries(
         Object.entries(filters).flatMap(([key, value]) => value === undefined ? [] : [[key, value]]),
       ),

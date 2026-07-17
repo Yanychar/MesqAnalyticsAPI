@@ -4,6 +4,7 @@ import { AppEventLevel } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   ReportDefinition,
+  ReportDetailSection,
   ReportExecutionResult,
   ReportImplementation,
 } from '../report.types';
@@ -61,7 +62,19 @@ export class InvoiceAmountsReport implements ReportImplementation {
         totalInclTaxes: true,
         totalTax: true,
         totalPaid: true,
+        treatmentRows: {
+          orderBy: { id: 'asc' },
+          select: {
+            amount: true,
+            treatment: {
+              select: {
+                treatment: true,
+              },
+            },
+          },
+        },
         materialRows: {
+          orderBy: { id: 'asc' },
           select: {
             quantity: true,
             treatment: {
@@ -69,6 +82,7 @@ export class InvoiceAmountsReport implements ReportImplementation {
                 id: true,
                 treatment: true,
                 purchasePrice: true,
+                salesPriceInclTaxes: true,
               },
             },
           },
@@ -77,6 +91,7 @@ export class InvoiceAmountsReport implements ReportImplementation {
     });
 
     const errors = new Map<string, { message: string; payload: Record<string, string | number | boolean | null> }>();
+    const detailSectionsByRowKey: Record<string, ReportDetailSection[]> = {};
 
     const rows = invoices.map((invoice) => {
       const totalVatExcl = this.toNumber(invoice.totalExclTaxes);
@@ -86,11 +101,22 @@ export class InvoiceAmountsReport implements ReportImplementation {
 
       let materialsVatExcl = 0;
 
-      for (const materialRow of invoice.materialRows) {
+      const treatmentDetailRows = invoice.treatmentRows.map((treatmentRow) => ({
+        columns: [
+          treatmentRow.treatment.treatment,
+          this.round2(this.toNumber(treatmentRow.amount)),
+        ],
+      }));
+
+      const materialDetailRows = invoice.materialRows.map((materialRow) => {
         const quantity = this.toNumber(materialRow.quantity);
         const purchasePrice = materialRow.treatment.purchasePrice === null
           ? null
           : Number(materialRow.treatment.purchasePrice);
+        const totalPurchaseCost = purchasePrice === null ? 0 : quantity * purchasePrice;
+        const estimatedTreatmentCostVatExcl = materialRow.treatment.salesPriceInclTaxes === null
+          ? null
+          : this.round2((Number(materialRow.treatment.salesPriceInclTaxes) / 1.24) * quantity);
 
         if (purchasePrice === null) {
           const message = `Missing purchase price for invoice ${invoice.invoiceNumber}, material "${materialRow.treatment.treatment}". Material cost was set to 0.`;
@@ -105,11 +131,39 @@ export class InvoiceAmountsReport implements ReportImplementation {
               purchasePrice: null,
             },
           });
-          continue;
+        } else {
+          materialsVatExcl += totalPurchaseCost;
         }
 
-        materialsVatExcl += quantity * purchasePrice;
-      }
+        return {
+          columns: [
+            materialRow.treatment.treatment,
+            this.round2(quantity),
+            purchasePrice === null ? '' : this.round2(purchasePrice),
+            this.round2(totalPurchaseCost),
+            estimatedTreatmentCostVatExcl === null ? '' : estimatedTreatmentCostVatExcl,
+          ],
+        };
+      });
+
+      detailSectionsByRowKey[invoice.invoiceNumber] = [
+        {
+          title: 'Treatments',
+          columns: ['Treatment name', 'Treatment cost (VAT excl)'],
+          rows: treatmentDetailRows,
+        },
+        {
+          title: 'Materials',
+          columns: [
+            'Material treatment name',
+            'Quantity used',
+            'Purchase price for 1',
+            'Total purchase cost',
+            'Treatment cost (VAT excl)',
+          ],
+          rows: materialDetailRows,
+        },
+      ];
 
       return {
         invoiceNumber: invoice.invoiceNumber,
@@ -143,6 +197,25 @@ export class InvoiceAmountsReport implements ReportImplementation {
       },
     );
 
+    const treatmentCount = invoices.reduce(
+      (accumulator, invoice) => accumulator + invoice.treatmentRows.length,
+      0,
+    );
+    const treatmentAmount = invoices.reduce(
+      (accumulator, invoice) => accumulator + invoice.treatmentRows.reduce(
+        (invoiceTotal, row) => invoiceTotal + this.toNumber(row.amount),
+        0,
+      ),
+      0,
+    );
+    const materialCount = invoices.reduce(
+      (accumulator, invoice) => accumulator + invoice.materialRows.reduce(
+        (invoiceTotal, row) => invoiceTotal + this.toNumber(row.quantity),
+        0,
+      ),
+      0,
+    );
+
     return {
       reportKey: definition.key,
       reportName: definition.name,
@@ -170,6 +243,16 @@ export class InvoiceAmountsReport implements ReportImplementation {
         { label: 'VAT', value: Number(totals.vat.toFixed(2)), format: 'currency' },
         { label: 'Paid', value: Number(totals.paid.toFixed(2)), format: 'currency' },
       ],
+      summaryRows: [
+        { label: 'Invoices', number: rows.length, amount: null },
+        { label: 'Treatments performed', number: treatmentCount, amount: Number(treatmentAmount.toFixed(2)) },
+        { label: 'Materials used in treatments', number: Number(materialCount.toFixed(2)), amount: Number(totals.materialsVatExcl.toFixed(2)) },
+        { label: 'Total (VAT excl)', number: null, amount: Number(totals.totalVatExcl.toFixed(2)) },
+        { label: 'Remaining (VAT excl)', number: null, amount: Number(totals.withoutMaterialsVatExcl.toFixed(2)) },
+        { label: 'VAT', number: null, amount: Number(totals.vat.toFixed(2)) },
+        { label: 'Paid', number: null, amount: Number(totals.paid.toFixed(2)) },
+      ],
+      detailSectionsByRowKey,
       errors: errorList.map((item) => item.message),
     };
   }

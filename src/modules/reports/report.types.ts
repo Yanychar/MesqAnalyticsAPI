@@ -28,6 +28,22 @@ export interface ReportSummaryItem {
   format?: 'text' | 'currency' | 'number';
 }
 
+export interface ReportSummaryRow {
+  label: string;
+  number?: string | number | null;
+  amount?: string | number | null;
+}
+
+export interface ReportDetailRow {
+  columns: Array<string | number | null>;
+}
+
+export interface ReportDetailSection {
+  title: string;
+  columns: string[];
+  rows: ReportDetailRow[];
+}
+
 export interface ReportDefinition {
   key: string;
   name: string;
@@ -44,6 +60,8 @@ export interface ReportExecutionResult {
   columns: ReportColumnDefinition[];
   rows: Array<Record<string, string | number | boolean | null>>;
   summary: ReportSummaryItem[];
+  summaryRows?: ReportSummaryRow[];
+  detailSectionsByRowKey?: Record<string, ReportDetailSection[]>;
   errors: string[];
 }
 
