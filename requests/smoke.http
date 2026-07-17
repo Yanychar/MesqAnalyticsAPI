@@ -1,0 +1,40 @@
+@baseUrl = http://localhost:3021
+
+### Test app help
+GET {{baseUrl}}/help
+
+### Test DB health
+GET {{baseUrl}}/health/mysql
+
+### Test stage entities
+GET {{baseUrl}}/clinicminds/stage/entities
+
+### Test reports catalog
+GET {{baseUrl}}/reports
+
+### Run patient stage against test fixtures
+POST {{baseUrl}}/clinicminds/stage/cmPatient
+Content-Type: application/json
+
+{}
+
+### Run material treatment stage against test fixtures
+POST {{baseUrl}}/clinicminds/stage/cmMaterialTreatment
+Content-Type: application/json
+
+{}
+
+### Preview invoice amounts report
+POST {{baseUrl}}/reports/invoice-amounts/run
+Content-Type: application/json
+
+{
+  "invoiceDateFrom": "2026-07-01",
+  "invoiceDateTo": "2026-07-31"
+}
+
+### Download invoice amounts CSV
+GET {{baseUrl}}/reports/invoice-amounts/download?format=csv&invoiceDateFrom=2026-07-01&invoiceDateTo=2026-07-31
+
+### Download invoice amounts XLSX
+GET {{baseUrl}}/reports/invoice-amounts/download?format=xlsx&invoiceDateFrom=2026-07-01&invoiceDateTo=2026-07-31

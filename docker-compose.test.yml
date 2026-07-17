@@ -1,0 +1,35 @@
+services:
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.test
+    ports:
+      - '3021:3000'
+    depends_on:
+      mysql-test:
+        condition: service_healthy
+    command: sh -c "npx prisma db push && npm run start"
+
+  mysql-test:
+    image: mysql:8.4
+    restart: unless-stopped
+    command: --sort-buffer-size=8M
+    environment:
+      MYSQL_DATABASE: mesq_cm_reporting_test
+      MYSQL_USER: mesqadmin
+      MYSQL_PASSWORD: mesqadmin
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3327:3306'
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-proot']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+
+volumes:
+  mysql_test_data:

@@ -19,11 +19,13 @@ export interface ReportFilterDefinition {
 export interface ReportColumnDefinition {
   key: string;
   label: string;
+  format?: 'text' | 'currency' | 'number';
 }
 
 export interface ReportSummaryItem {
   label: string;
   value: string | number;
+  format?: 'text' | 'currency' | 'number';
 }
 
 export interface ReportDefinition {

@@ -1,0 +1,19 @@
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE AppEvent;
+TRUNCATE TABLE ApiRequestLog;
+TRUNCATE TABLE ClinicmindsRawRecord;
+TRUNCATE TABLE ClinicmindsStageRun;
+TRUNCATE TABLE ClinicmindsSyncRun;
+TRUNCATE TABLE CmInvoiceMaterial;
+TRUNCATE TABLE CmInvoicePackage;
+TRUNCATE TABLE CmInvoicePayment;
+TRUNCATE TABLE CmInvoiceProduct;
+TRUNCATE TABLE CmInvoiceTax;
+TRUNCATE TABLE CmInvoiceTreatment;
+TRUNCATE TABLE CmInvoice;
+TRUNCATE TABLE CmPackage;
+TRUNCATE TABLE CmPatient;
+TRUNCATE TABLE CmTreatment;
+
+SET FOREIGN_KEY_CHECKS = 1;

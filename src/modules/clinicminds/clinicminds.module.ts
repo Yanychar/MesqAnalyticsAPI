@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { ClinicmindsAppointmentsService } from './clinicminds-appointments.service';
+import { ClinicmindsCronService } from './clinicminds-cron.service';
 import { ClinicmindsInvoicesService } from './clinicminds-invoices.service';
 import { ClinicmindsProductSalesService } from './clinicminds-product-sales.service';
 import { ClinicmindsTreatmentMaterialStockService } from './clinicminds-treatment-material-stock.service';
@@ -18,9 +19,9 @@ import { ClinicmindsSyncService } from './clinicminds-sync.service';
   controllers: [ClinicmindsController],
   providers: [
     ClinicmindsAppointmentsService,
+    ClinicmindsCronService,
     ClinicmindsInvoicesService,
     ClinicmindsProductSalesService,
-    ClinicmindsTreatmentMaterialStockService,
     ClinicmindsTreatmentMaterialStockService,
     ClinicmindsClient,
     ClinicmindsOnlineBookingsService,

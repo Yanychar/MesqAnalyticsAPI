@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { appExecutionConfig } from './config/app-execution.config';
@@ -15,6 +16,7 @@ import { ReportsModule } from './modules/reports/reports.module';
       isGlobal: true,
       load: [appExecutionConfig, clinicmindsConfig],
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     ClinicmindsModule,
     ReportsModule,
