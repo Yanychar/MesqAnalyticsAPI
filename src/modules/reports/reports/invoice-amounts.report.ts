@@ -61,6 +61,10 @@ export class InvoiceAmountsReport implements ReportImplementation {
         totalExclTaxes: true,
         totalInclTaxes: true,
         totalTax: true,
+        totalTreatments: true,
+        totalPackages: true,
+        totalProducts: true,
+        totalGiftcard: true,
         totalPaid: true,
         treatmentRows: {
           orderBy: { id: 'asc' },
@@ -97,6 +101,10 @@ export class InvoiceAmountsReport implements ReportImplementation {
       const totalVatExcl = this.toNumber(invoice.totalExclTaxes);
       const totalGross = this.toNumber(invoice.totalInclTaxes);
       const totalTax = this.toNumber(invoice.totalTax);
+      const totalTreatments = this.toNumber(invoice.totalTreatments);
+      const totalPackages = this.toNumber(invoice.totalPackages);
+      const totalProducts = this.toNumber(invoice.totalProducts);
+      const totalGiftcards = this.toNumber(invoice.totalGiftcard);
       const paid = this.toNumber(invoice.totalPaid);
 
       let materialsVatExcl = 0;
@@ -168,12 +176,14 @@ export class InvoiceAmountsReport implements ReportImplementation {
       return {
         invoiceNumber: invoice.invoiceNumber,
         invoiceDate: invoice.invoiceDate ?? '',
-        creditOrDebit: totalVatExcl < 0 || totalGross < 0 ? 'Credit' : 'Debit',
-        totalVatExcl: this.round2(totalVatExcl),
+        type: totalVatExcl < 0 || totalGross < 0 ? 'CR' : 'DB',
+        totalTreatments: this.round2(totalTreatments),
+        totalPackages: this.round2(totalPackages),
+        totalProducts: this.round2(totalProducts),
+        totalGiftcards: this.round2(totalGiftcards),
         materialsVatExcl: this.round2(materialsVatExcl),
-        withoutMaterialsVatExcl: this.round2(totalVatExcl - materialsVatExcl),
-        vat: this.round2(totalTax),
-        paid: this.round2(paid),
+        totalInvoiced: this.round2(totalVatExcl),
+        ownPlus: this.round2(totalVatExcl - materialsVatExcl),
       };
     });
 
@@ -182,18 +192,24 @@ export class InvoiceAmountsReport implements ReportImplementation {
 
     const totals = rows.reduce(
       (accumulator, row) => ({
-        totalVatExcl: accumulator.totalVatExcl + this.toNumber(row.totalVatExcl),
+        totalVatExcl: accumulator.totalVatExcl + this.toNumber(row.ownPlus) + this.toNumber(row.materialsVatExcl),
+        totalTreatments: accumulator.totalTreatments + this.toNumber(row.totalTreatments),
+        totalPackages: accumulator.totalPackages + this.toNumber(row.totalPackages),
+        totalProducts: accumulator.totalProducts + this.toNumber(row.totalProducts),
+        totalGiftcards: accumulator.totalGiftcards + this.toNumber(row.totalGiftcards),
         materialsVatExcl: accumulator.materialsVatExcl + this.toNumber(row.materialsVatExcl),
-        withoutMaterialsVatExcl: accumulator.withoutMaterialsVatExcl + this.toNumber(row.withoutMaterialsVatExcl),
-        vat: accumulator.vat + this.toNumber(row.vat),
-        paid: accumulator.paid + this.toNumber(row.paid),
+        totalInvoiced: accumulator.totalInvoiced + this.toNumber(row.totalInvoiced),
+        ownPlus: accumulator.ownPlus + this.toNumber(row.ownPlus),
       }),
       {
         totalVatExcl: 0,
+        totalTreatments: 0,
+        totalPackages: 0,
+        totalProducts: 0,
+        totalGiftcards: 0,
         materialsVatExcl: 0,
-        withoutMaterialsVatExcl: 0,
-        vat: 0,
-        paid: 0,
+        totalInvoiced: 0,
+        ownPlus: 0,
       },
     );
 
@@ -227,30 +243,35 @@ export class InvoiceAmountsReport implements ReportImplementation {
       columns: [
         { key: 'invoiceNumber', label: 'Invoice number' },
         { key: 'invoiceDate', label: 'Invoice date' },
-        { key: 'creditOrDebit', label: 'Credit or debit' },
-        { key: 'totalVatExcl', label: 'Total\n(VAT excl)', format: 'currency' },
-        { key: 'materialsVatExcl', label: 'Materials\n(VAT excl)', format: 'currency' },
-        { key: 'withoutMaterialsVatExcl', label: 'Remaining\n(VAT excl)', format: 'currency' },
-        { key: 'vat', label: 'VAT', format: 'currency' },
-        { key: 'paid', label: 'Paid', format: 'currency' },
+        { key: 'type', label: 'Type' },
+        { key: 'totalTreatments', label: 'Treatments', format: 'currency' },
+        { key: 'totalPackages', label: 'Packages', format: 'currency' },
+        { key: 'totalProducts', label: 'Products', format: 'currency' },
+        { key: 'totalGiftcards', label: 'Gift cards', format: 'currency' },
+        { key: 'materialsVatExcl', label: 'Materials', format: 'currency' },
+        { key: 'totalInvoiced', label: 'Total invoiced', format: 'currency' },
+        { key: 'ownPlus', label: 'Total without materials', format: 'currency' },
       ],
       rows,
       summary: [
         { label: 'Invoices', value: rows.length, format: 'number' },
-        { label: 'Total (VAT excl)', value: Number(totals.totalVatExcl.toFixed(2)), format: 'currency' },
-        { label: 'Materials (VAT excl)', value: Number(totals.materialsVatExcl.toFixed(2)), format: 'currency' },
-        { label: 'Remaining (VAT excl)', value: Number(totals.withoutMaterialsVatExcl.toFixed(2)), format: 'currency' },
-        { label: 'VAT', value: Number(totals.vat.toFixed(2)), format: 'currency' },
-        { label: 'Paid', value: Number(totals.paid.toFixed(2)), format: 'currency' },
+        { label: 'Treatments', value: Number(totals.totalTreatments.toFixed(2)), format: 'currency' },
+        { label: 'Packages', value: Number(totals.totalPackages.toFixed(2)), format: 'currency' },
+        { label: 'Products', value: Number(totals.totalProducts.toFixed(2)), format: 'currency' },
+        { label: 'Gift cards', value: Number(totals.totalGiftcards.toFixed(2)), format: 'currency' },
+        { label: 'Materials', value: Number(totals.materialsVatExcl.toFixed(2)), format: 'currency' },
+        { label: 'Total invoiced', value: Number(totals.totalInvoiced.toFixed(2)), format: 'currency' },
+        { label: 'Total without materials', value: Number(totals.ownPlus.toFixed(2)), format: 'currency' },
       ],
       summaryRows: [
         { label: 'Invoices', number: rows.length, amount: null },
-        { label: 'Treatments performed', number: treatmentCount, amount: Number(treatmentAmount.toFixed(2)) },
+        { label: 'Treatments performed', number: treatmentCount, amount: Number(totals.totalTreatments.toFixed(2)) },
         { label: 'Materials used in treatments', number: Number(materialCount.toFixed(2)), amount: Number(totals.materialsVatExcl.toFixed(2)) },
-        { label: 'Total (VAT excl)', number: null, amount: Number(totals.totalVatExcl.toFixed(2)) },
-        { label: 'Remaining (VAT excl)', number: null, amount: Number(totals.withoutMaterialsVatExcl.toFixed(2)) },
-        { label: 'VAT', number: null, amount: Number(totals.vat.toFixed(2)) },
-        { label: 'Paid', number: null, amount: Number(totals.paid.toFixed(2)) },
+        { label: 'Packages sold', number: null, amount: Number(totals.totalPackages.toFixed(2)) },
+        { label: 'Products sold', number: null, amount: Number(totals.totalProducts.toFixed(2)) },
+        { label: 'Gift cards', number: null, amount: Number(totals.totalGiftcards.toFixed(2)) },
+        { label: 'Total invoiced', number: null, amount: Number(totals.totalInvoiced.toFixed(2)) },
+        { label: 'Total without materials', number: null, amount: Number(totals.ownPlus.toFixed(2)) },
       ],
       detailSectionsByRowKey,
       errors: errorList.map((item) => item.message),

@@ -353,8 +353,9 @@ export class ClinicmindsStageService {
               totalExclTaxes: this.toNullableDecimalString(invoiceData['Total (excl. taxes)']),
               totalInclTaxes: this.toNullableDecimalString(invoiceData['Total (incl. taxes)']),
               totalTax: this.toNullableDecimalString(taxes.Total),
-              treatmentTotal: this.toNullableDecimalString(treatmentsExclTaxes.Total),
+              totalTreatments: this.toNullableDecimalString(treatmentsExclTaxes.Total),
               totalPackages: this.toNullableDecimalString(packagesExclTaxes.Total),
+              totalProducts: this.toNullableDecimalString(productsExclTaxes.Total),
               totalGiftcard: this.toNullableDecimalString(giftCards.Total),
               totalPaid: this.toNullableDecimalString(paymentMethods.Total),
               outstanding: this.toNullableDecimalString(invoiceData.Outstanding),
@@ -381,8 +382,9 @@ export class ClinicmindsStageService {
               totalExclTaxes: this.toNullableDecimalString(invoiceData['Total (excl. taxes)']),
               totalInclTaxes: this.toNullableDecimalString(invoiceData['Total (incl. taxes)']),
               totalTax: this.toNullableDecimalString(taxes.Total),
-              treatmentTotal: this.toNullableDecimalString(treatmentsExclTaxes.Total),
+              totalTreatments: this.toNullableDecimalString(treatmentsExclTaxes.Total),
               totalPackages: this.toNullableDecimalString(packagesExclTaxes.Total),
+              totalProducts: this.toNullableDecimalString(productsExclTaxes.Total),
               totalGiftcard: this.toNullableDecimalString(giftCards.Total),
               totalPaid: this.toNullableDecimalString(paymentMethods.Total),
               outstanding: this.toNullableDecimalString(invoiceData.Outstanding),
@@ -398,6 +400,13 @@ export class ClinicmindsStageService {
           await tx.cmInvoiceMaterial.deleteMany({ where: { invoiceId: invoice.id } });
 
           const taxRows = this.buildInvoiceTaxRows(taxes);
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Taxes',
+            taxes.Total,
+            taxRows.map((item) => item.decimalValue),
+          );
           if (taxRows.length > 0) {
             await tx.cmInvoiceTax.createMany({
               data: taxRows.map((item) => ({
@@ -409,6 +418,13 @@ export class ClinicmindsStageService {
           }
 
           const paymentRows = this.buildInvoicePaymentRows(paymentMethods);
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Payment methods',
+            paymentMethods.Total,
+            paymentRows.map((item) => item.decimalValue),
+          );
           const paymentRowsToStore = this.buildStoredInvoicePaymentRows(paymentRows, paymentMethods.Total);
           if (paymentRowsToStore.length > 0) {
             await tx.cmInvoicePayment.createMany({
@@ -421,7 +437,21 @@ export class ClinicmindsStageService {
           }
 
           const treatmentRows = this.buildInvoiceTreatmentRows(treatmentsExclTaxes);
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Treatments (excl. taxes)',
+            treatmentsExclTaxes.Total,
+            treatmentRows.map((item) => item.amount),
+          );
           const packageRows = this.buildInvoicePackageRows(packagesExclTaxes);
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Packages (excl. taxes)',
+            packagesExclTaxes.Total,
+            packageRows.map((item) => item.amount),
+          );
           const materialRows = this.buildInvoiceMaterialRows(treatmentMaterials);
           const fallbackLocationId = this.getConfiguredTreatmentLocationId();
 
@@ -473,6 +503,13 @@ export class ClinicmindsStageService {
             productsExclTaxes,
             INVOICE_SECTION_DEFINITIONS.productAmount,
           ).filter((item) => item.decimalValue !== null && item.decimalValue !== '0');
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Products (excl. taxes)',
+            productsExclTaxes.Total,
+            productRows.map((item) => item.decimalValue),
+          );
           if (productRows.length > 0) {
             await tx.cmInvoiceProduct.createMany({
               data: productRows.map((item) => ({
@@ -485,6 +522,19 @@ export class ClinicmindsStageService {
               })),
             });
           }
+
+          await this.validateInvoiceSectionTotal(
+            tx,
+            invoiceNumber,
+            'Gift cards',
+            giftCards.Total,
+            this.buildInvoiceSectionRows(giftCards, {
+              startOrder: 0,
+              endOrder: 0,
+              groupKey: 'giftCards',
+              groupLabel: 'Gift cards',
+            }).map((item) => item.decimalValue),
+          );
 
           for (const item of materialRows) {
             const treatment = await this.ensureTreatmentRecord(tx, {
@@ -692,6 +742,63 @@ export class ClinicmindsStageService {
       failed,
       status: runStatus,
     };
+  }
+
+  private async validateInvoiceSectionTotal(
+    tx: Prisma.TransactionClient,
+    invoiceNumber: string,
+    sectionName: string,
+    totalValue: unknown,
+    itemValues: Array<string | null>,
+  ) {
+    const declaredTotal = this.toNullableDecimalString(totalValue);
+    const normalizedItemValues = itemValues.filter((value): value is string => value !== null);
+
+    if (declaredTotal === null || normalizedItemValues.length === 0) {
+      return;
+    }
+
+    const summedItems = normalizedItemValues.reduce((sum, value) => sum + Number(value), 0);
+    const declaredTotalNumber = Number(declaredTotal);
+    const difference = Number((declaredTotalNumber - summedItems).toFixed(2));
+
+    if (Math.abs(difference) < 0.01) {
+      return;
+    }
+
+    const title = 'Invoice section total mismatch';
+    const message = `Invoice ${invoiceNumber}, block "${sectionName}" total ${declaredTotal} does not match item sum ${summedItems.toFixed(2)}.`;
+    const existing = await tx.appEvent.findFirst({
+      where: {
+        source: 'ClinicmindsStageService',
+        entityKey: 'cmInvoice',
+        title,
+        message,
+      },
+      select: { id: true },
+    });
+
+    if (existing) {
+      return;
+    }
+
+    this.logger.error(message);
+    await tx.appEvent.create({
+      data: {
+        level: AppEventLevel.ERROR,
+        source: 'ClinicmindsStageService',
+        entityKey: 'cmInvoice',
+        title,
+        message,
+        payload: {
+          invoiceNumber,
+          sectionName,
+          declaredTotal,
+          summedItems: summedItems.toFixed(2),
+          difference: difference.toFixed(2),
+        },
+      },
+    });
   }
 
   private buildInvoiceSectionRows(

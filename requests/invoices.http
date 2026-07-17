@@ -59,6 +59,6 @@ Accept: application/json
 GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmInvoice&limit={{invoiceStageLimit}}
 Accept: application/json
 
-### List staged invoices with tax, payment, treatment, and product sections
+### List staged invoices with tax, payment, treatment, product sections, and invoice-level totals including totalTreatments and totalProducts
 GET {{baseUrl}}/clinicminds/stage/invoices?limit={{invoiceStageLimit}}
 Accept: application/json

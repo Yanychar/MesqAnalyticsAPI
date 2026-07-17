@@ -12,6 +12,7 @@ GET {{baseUrl}}/reports/{{reportKey}}
 Accept: application/json
 
 ### Run report preview
+### Invoice output now includes invoice-level totals such as totalTreatments and totalProducts.
 POST {{baseUrl}}/reports/{{reportKey}}/run
 Content-Type: application/json
 Accept: application/json
@@ -24,3 +25,7 @@ Accept: application/json
 ### Download report as CSV
 GET {{baseUrl}}/reports/{{reportKey}}/download?format=csv&invoiceDateFrom={{invoiceDateFrom}}&invoiceDateTo={{invoiceDateTo}}
 Accept: text/csv
+
+### Download report as Excel with invoice-level totalTreatments and totalProducts output
+GET {{baseUrl}}/reports/{{reportKey}}/download?format=xlsx&invoiceDateFrom={{invoiceDateFrom}}&invoiceDateTo={{invoiceDateTo}}
+Accept: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet

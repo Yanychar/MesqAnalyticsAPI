@@ -118,7 +118,8 @@ export class ReportsService {
 
     const summarySheet = workbook.addWorksheet('Summary');
     summarySheet.addRow(['Report', result.reportName]);
-    summarySheet.addRow(['Generated at', result.generatedAt]);
+    const generatedAtRow = summarySheet.addRow(['Generated at', new Date(result.generatedAt)]);
+    generatedAtRow.getCell(2).numFmt = 'dd.mm.yyyy hh:mm';
     summarySheet.addRow([]);
     const filtersHeader = summarySheet.addRow(['Filter', 'Value']);
     filtersHeader.font = { bold: true };
@@ -126,17 +127,22 @@ export class ReportsService {
       summarySheet.addRow([key, value]);
     });
     summarySheet.addRow([]);
-    const summaryHeader = summarySheet.addRow(['Metric', 'Value']);
+    const summaryRows = result.summaryRows || result.summary.map((item) => ({
+      label: item.label,
+      number: null,
+      amount: item.value,
+    }));
+    const summaryHeader = summarySheet.addRow(['Item', 'Number', 'Amount']);
     summaryHeader.font = { bold: true };
-    result.summary.forEach((item) => {
-      const row = summarySheet.addRow([item.label, item.value]);
-      if (item.format === 'currency') {
-        row.getCell(2).numFmt = '#,##0.00 "€"';
-      }
+    summaryRows.forEach((item) => {
+      const row = summarySheet.addRow([item.label, item.number, item.amount]);
+      row.getCell(2).numFmt = '#,##0';
+      row.getCell(3).numFmt = '#,##0.00 "€"';
     });
 
     summarySheet.getColumn(1).width = 36;
-    summarySheet.getColumn(2).width = 24;
+    summarySheet.getColumn(2).width = 18;
+    summarySheet.getColumn(3).width = 24;
 
     this.addDetailWorksheet(
       workbook,
@@ -189,7 +195,7 @@ export class ReportsService {
     const headers = rows.length > 0
       ? Object.keys(rows[0])
       : name === 'Treatments'
-        ? ['Treatment name', 'Quantity', 'Total amount', 'Total without material']
+        ? ['Treatment name', 'Quantity', 'Total amount']
         : [
             'Invoice number',
             'Material treatment name',
@@ -225,7 +231,6 @@ export class ReportsService {
 
       if ([
         'Total amount',
-        'Total without material',
         'Treatment amount (VAT excl)',
         'Treatment cost (VAT excl)',
         'Treatments cost (VAT excl)',
@@ -262,7 +267,7 @@ export class ReportsService {
     });
 
     const sumHeaders = name === 'Treatments'
-      ? ['Quantity', 'Total amount', 'Total without material']
+      ? ['Quantity', 'Total amount']
       : ['Quantity used', 'Total purchase cost'];
 
     headers.forEach((header, index) => {
@@ -293,29 +298,10 @@ export class ReportsService {
   private collectTreatmentSummaryRows(
     result: ReportExecutionResult,
   ): Array<Record<string, string | number | boolean | null>> {
-    const totals = new Map<string, { quantity: number; totalAmount: number; totalWithoutMaterial: number }>();
+    const totals = new Map<string, { quantity: number; totalAmount: number }>();
 
     for (const sections of Object.values(result.detailSectionsByRowKey ?? {})) {
       const treatmentSection = sections.find((item) => item.title === 'Treatments');
-      const materialSection = sections.find((item) => item.title === 'Materials');
-      const materialCostsByName = new Map<string, number>();
-
-      if (materialSection) {
-        for (const row of materialSection.rows) {
-          const materialName = String(row.columns[0] ?? '').trim();
-
-          if (!materialName) {
-            continue;
-          }
-
-          const existingMaterialCost = materialCostsByName.get(materialName) ?? 0;
-          materialCostsByName.set(
-            materialName,
-            existingMaterialCost + this.toNumber(row.columns[3]),
-          );
-        }
-      }
-
       if (!treatmentSection) {
         continue;
       }
@@ -328,18 +314,14 @@ export class ReportsService {
         }
 
         const treatmentAmount = this.toNumber(row.columns[1]);
-        const materialCost = materialCostsByName.get(treatmentName) ?? 0;
         const existing = totals.get(treatmentName) ?? {
           quantity: 0,
           totalAmount: 0,
-          totalWithoutMaterial: 0,
         };
 
         existing.quantity += 1;
         existing.totalAmount += treatmentAmount;
-        existing.totalWithoutMaterial += treatmentAmount - materialCost;
 
-        materialCostsByName.delete(treatmentName);
         totals.set(treatmentName, existing);
       }
     }
@@ -350,7 +332,6 @@ export class ReportsService {
         'Treatment name': treatmentName,
         Quantity: values.quantity,
         'Total amount': this.round2(values.totalAmount),
-        'Total without material': this.round2(values.totalWithoutMaterial),
       }));
   }
 
