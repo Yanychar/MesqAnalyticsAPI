@@ -4,6 +4,8 @@ import { ClinicmindsAppointmentsService } from './clinicminds-appointments.servi
 import { ClinicmindsCronService } from './clinicminds-cron.service';
 import { ClinicmindsInvoicesService } from './clinicminds-invoices.service';
 import { ClinicmindsProductSalesService } from './clinicminds-product-sales.service';
+import { ClinicmindsRecordsService } from './clinicminds-records.service';
+import { ClinicmindsQuotesService } from './clinicminds-quotes.service';
 import { ClinicmindsTreatmentMaterialStockService } from './clinicminds-treatment-material-stock.service';
 import { ClinicmindsClient } from './clinicminds.client';
 import { ClinicmindsOnlineBookingsService } from './clinicminds-online-bookings.service';
@@ -22,6 +24,8 @@ import { ClinicmindsSyncService } from './clinicminds-sync.service';
     ClinicmindsCronService,
     ClinicmindsInvoicesService,
     ClinicmindsProductSalesService,
+    ClinicmindsRecordsService,
+    ClinicmindsQuotesService,
     ClinicmindsTreatmentMaterialStockService,
     ClinicmindsClient,
     ClinicmindsOnlineBookingsService,
@@ -36,6 +40,8 @@ import { ClinicmindsSyncService } from './clinicminds-sync.service';
     ClinicmindsAppointmentsService,
     ClinicmindsInvoicesService,
     ClinicmindsProductSalesService,
+    ClinicmindsRecordsService,
+    ClinicmindsQuotesService,
     ClinicmindsClient,
     ClinicmindsOnlineBookingsService,
     ClinicmindsSpecService,

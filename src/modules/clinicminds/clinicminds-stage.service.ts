@@ -1,6 +1,7 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { AppEventLevel, ClinicmindsStageRunStatus, ClinicmindsStagingStatus, Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
+import { createHash } from 'node:crypto';
 
 import { AppExecutionConfig } from 'src/config/app-execution.config';
 
@@ -97,6 +98,16 @@ export class ClinicmindsStageService {
         targetTable: 'cm_invoice',
       },
       {
+        entityKey: 'cmRecord',
+        label: 'CM Record',
+        targetTable: 'cm_record',
+      },
+      {
+        entityKey: 'cmQuote',
+        label: 'CM Quote',
+        targetTable: 'cm_quote',
+      },
+      {
         entityKey: 'cmMaterialTreatment',
         label: 'CM Material Treatment',
         targetTable: 'cm_treatment',
@@ -113,6 +124,14 @@ export class ClinicmindsStageService {
 
     if (entityKey === 'cmInvoice') {
       return this.stageInvoices(limit);
+    }
+
+    if (entityKey === 'cmRecord') {
+      return this.stageRecords(limit);
+    }
+
+    if (entityKey === 'cmQuote') {
+      return this.stageQuotes(limit);
     }
 
     if (entityKey === 'cmMaterialTreatment') {
@@ -172,6 +191,34 @@ export class ClinicmindsStageService {
         { treatment: 'asc' },
         { brand: 'asc' },
         { unit: 'asc' },
+      ],
+      take: Math.min(Math.max(limit, 1), 200),
+    });
+
+    return this.serializeForResponse(rows);
+  }
+
+  async listRecords(limit = 50) {
+    this.ensureStageEnabled();
+
+    const rows = await this.prisma.cmRecord.findMany({
+      orderBy: [
+        { recordDate: 'desc' },
+        { id: 'desc' },
+      ],
+      take: Math.min(Math.max(limit, 1), 200),
+    });
+
+    return this.serializeForResponse(rows);
+  }
+
+  async listQuotes(limit = 50) {
+    this.ensureStageEnabled();
+
+    const rows = await this.prisma.cmQuote.findMany({
+      orderBy: [
+        { quoteDate: 'desc' },
+        { quoteNumber: 'desc' },
       ],
       take: Math.min(Math.max(limit, 1), 200),
     });
@@ -337,12 +384,6 @@ export class ClinicmindsStageService {
               lastRawRecordId: row.id,
               externalId: row.externalId,
               patientNumber: this.toNullableString(debtorData['Patient number']),
-              nationalIdentificationNumber: this.toNullableString(this.findNestedValue(payload, 'National identification number')),
-              address: this.toNullableString(this.findNestedValue(payload, 'Address')),
-              emailAddress: this.toNullableString(this.findNestedValue(payload, 'Email address')),
-              phoneNumber: this.toNullableString(this.findNestedValue(payload, 'Phone number')),
-              mobileNumber: this.toNullableString(this.findNestedValue(payload, 'Mobile number')),
-              referral: this.toNullableString(this.findNestedValue(payload, 'Referral')),
               invoiceDate: this.toNullableString(invoiceData['Invoice date']),
               dueDate: this.toNullableString(invoiceData['Due date']),
               location: this.toNullableString(invoiceData.Location),
@@ -366,12 +407,6 @@ export class ClinicmindsStageService {
               externalId: row.externalId,
               invoiceNumber,
               patientNumber: this.toNullableString(debtorData['Patient number']),
-              nationalIdentificationNumber: this.toNullableString(this.findNestedValue(payload, 'National identification number')),
-              address: this.toNullableString(this.findNestedValue(payload, 'Address')),
-              emailAddress: this.toNullableString(this.findNestedValue(payload, 'Email address')),
-              phoneNumber: this.toNullableString(this.findNestedValue(payload, 'Phone number')),
-              mobileNumber: this.toNullableString(this.findNestedValue(payload, 'Mobile number')),
-              referral: this.toNullableString(this.findNestedValue(payload, 'Referral')),
               invoiceDate: this.toNullableString(invoiceData['Invoice date']),
               dueDate: this.toNullableString(invoiceData['Due date']),
               location: this.toNullableString(invoiceData.Location),
@@ -603,6 +638,265 @@ export class ClinicmindsStageService {
     return {
       stageRunId: String(stageRun.id),
       entityKey: 'cmInvoice',
+      scanned: rows.length,
+      staged,
+      failed,
+      status: runStatus,
+    };
+  }
+
+  private async stageRecords(limit?: number) {
+    const stageRun = await this.prisma.clinicmindsStageRun.create({
+      data: {
+        entityKey: 'cmRecord',
+        targetTable: 'cm_record',
+      },
+    });
+
+    const rows = await this.prisma.clinicmindsRawRecord.findMany({
+      where: {
+        entityKey: 'cmRecord',
+        stagingStatus: ClinicmindsStagingStatus.STAGING_NEEDED,
+      },
+      orderBy: { id: 'asc' },
+      ...(limit === undefined ? {} : { take: Math.max(limit, 1) }),
+    });
+
+    let staged = 0;
+    let failed = 0;
+
+    for (const row of rows) {
+      try {
+        const payload = this.asRecord(row.payload);
+        const normalized = this.syncConfigService.normalizePayload('cmRecord', payload);
+        const patientNumber = this.toNullableString(normalized.patientNumber);
+        const recordDate = this.toNullableString(
+          normalized.recordDate ?? this.findFirstNestedValue(payload, ['Date', 'Record date']),
+        );
+        const recordType = this.toNullableString(
+          normalized.recordType ?? this.findFirstNestedValue(payload, ['Type', 'Record type']),
+        );
+        const treatmentCategory = this.toNullableString(
+          normalized.treatmentCategory
+            ?? this.findFirstNestedValue(payload, ['Treatment categories', 'Treatment category']),
+        );
+        const location = this.toNullableString(
+          normalized.location ?? this.findFirstNestedValue(payload, ['Location']),
+        );
+        const user = this.toNullableString(
+          normalized.user ?? this.findFirstNestedValue(payload, ['User']),
+        );
+        const recordKey = this.buildRecordKey({
+          payload,
+          patientNumber,
+          recordDate,
+          recordType,
+          treatmentCategory,
+          location,
+          user,
+        });
+
+        await this.prisma.cmRecord.upsert({
+          where: { recordKey },
+          update: {
+            lastRawRecordId: row.id,
+            externalId: row.externalId,
+            patientNumber,
+            recordDate,
+            recordType,
+            treatmentCategory,
+            location,
+            user,
+            diagnoses: this.toNullableString(
+              normalized.diagnoses ?? this.findFirstNestedValue(payload, ['Diagnoses']),
+            ),
+            asaClassification: this.toNullableString(
+              normalized.asaClassification ?? this.findFirstNestedValue(payload, ['ASA classification']),
+            ),
+            payload: payload as Prisma.InputJsonValue,
+          },
+          create: {
+            lastRawRecordId: row.id,
+            externalId: row.externalId,
+            recordKey,
+            patientNumber,
+            recordDate,
+            recordType,
+            treatmentCategory,
+            location,
+            user,
+            diagnoses: this.toNullableString(
+              normalized.diagnoses ?? this.findFirstNestedValue(payload, ['Diagnoses']),
+            ),
+            asaClassification: this.toNullableString(
+              normalized.asaClassification ?? this.findFirstNestedValue(payload, ['ASA classification']),
+            ),
+            payload: payload as Prisma.InputJsonValue,
+          },
+        });
+
+        await this.prisma.clinicmindsRawRecord.update({
+          where: { id: row.id },
+          data: {
+            stagingStatus: ClinicmindsStagingStatus.STAGING_DONE,
+            stagedAt: new Date(),
+          },
+        });
+
+        staged += 1;
+      } catch (error) {
+        await this.prisma.clinicmindsRawRecord.update({
+          where: { id: row.id },
+          data: {
+            stagingStatus: ClinicmindsStagingStatus.STAGING_ERROR,
+          },
+        });
+
+        failed += 1;
+        this.logger.error(
+          `Failed to stage cmRecord raw row ${String(row.id)}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
+      }
+    }
+
+    const runStatus = failed > 0 ? ClinicmindsStageRunStatus.FAILED : ClinicmindsStageRunStatus.SUCCEEDED;
+
+    await this.prisma.clinicmindsStageRun.update({
+      where: { id: stageRun.id },
+      data: {
+        completedAt: new Date(),
+        status: runStatus,
+        scannedCount: rows.length,
+        stagedCount: staged,
+        failedCount: failed,
+        error: failed > 0 ? 'One or more raw rows failed during staging.' : null,
+      },
+    });
+
+    return {
+      stageRunId: String(stageRun.id),
+      entityKey: 'cmRecord',
+      scanned: rows.length,
+      staged,
+      failed,
+      status: runStatus,
+    };
+  }
+
+  private async stageQuotes(limit?: number) {
+    const stageRun = await this.prisma.clinicmindsStageRun.create({
+      data: {
+        entityKey: 'cmQuote',
+        targetTable: 'cm_quote',
+      },
+    });
+
+    const rows = await this.prisma.clinicmindsRawRecord.findMany({
+      where: {
+        entityKey: 'cmQuote',
+        stagingStatus: ClinicmindsStagingStatus.STAGING_NEEDED,
+      },
+      orderBy: { id: 'asc' },
+      ...(limit === undefined ? {} : { take: Math.max(limit, 1) }),
+    });
+
+    let staged = 0;
+    let failed = 0;
+
+    for (const row of rows) {
+      try {
+        const payload = this.asRecord(row.payload);
+        const quoteNumber = this.toNullableString(
+          row.externalId
+            ?? this.findFirstNestedValue(payload, ['Quote number', 'Quote', 'Quote no.', 'Quote ID']),
+        );
+
+        if (!quoteNumber) {
+          throw new Error('Quote number is required for staging.');
+        }
+
+        const quoteDate = this.toNullableString(
+          this.findFirstNestedValue(payload, ['Quote date', 'Date', 'Created at']),
+        );
+
+        await this.prisma.cmQuote.upsert({
+          where: { quoteNumber },
+          update: {
+            lastRawRecordId: row.id,
+            externalId: row.externalId,
+            patientNumber: this.toNullableString(this.findFirstNestedValue(payload, ['Patient number'])),
+            quoteDate,
+            validUntil: this.toNullableString(this.findFirstNestedValue(payload, ['Valid until', 'Expiration date', 'Expiry date'])),
+            location: this.toNullableString(this.findFirstNestedValue(payload, ['Location'])),
+            user: this.toNullableString(this.findFirstNestedValue(payload, ['User'])),
+            treatmentCategory: this.toNullableString(this.findFirstNestedValue(payload, ['Treatment category', 'Treatment type'])),
+            upcomingTreatmentDate: this.toNullableString(this.findFirstNestedValue(payload, ['Upcoming treatment date', 'Treatment date', 'First treatment date'])),
+            quoteStatus: this.toNullableString(this.findFirstNestedValue(payload, ['Status', 'Quote status'])),
+            totalInclTaxes: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Total (incl. taxes)', 'Total incl. taxes', 'Total including taxes'])),
+            totalExclTaxes: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Total (excl. taxes)', 'Total excl. taxes', 'Total excluding taxes'])),
+            outstanding: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Outstanding', 'Amount outstanding'])),
+            payload: payload as Prisma.InputJsonValue,
+          },
+          create: {
+            lastRawRecordId: row.id,
+            externalId: row.externalId,
+            quoteNumber,
+            patientNumber: this.toNullableString(this.findFirstNestedValue(payload, ['Patient number'])),
+            quoteDate,
+            validUntil: this.toNullableString(this.findFirstNestedValue(payload, ['Valid until', 'Expiration date', 'Expiry date'])),
+            location: this.toNullableString(this.findFirstNestedValue(payload, ['Location'])),
+            user: this.toNullableString(this.findFirstNestedValue(payload, ['User'])),
+            treatmentCategory: this.toNullableString(this.findFirstNestedValue(payload, ['Treatment category', 'Treatment type'])),
+            upcomingTreatmentDate: this.toNullableString(this.findFirstNestedValue(payload, ['Upcoming treatment date', 'Treatment date', 'First treatment date'])),
+            quoteStatus: this.toNullableString(this.findFirstNestedValue(payload, ['Status', 'Quote status'])),
+            totalInclTaxes: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Total (incl. taxes)', 'Total incl. taxes', 'Total including taxes'])),
+            totalExclTaxes: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Total (excl. taxes)', 'Total excl. taxes', 'Total excluding taxes'])),
+            outstanding: this.toNullableDecimalString(this.findFirstNestedValue(payload, ['Outstanding', 'Amount outstanding'])),
+            payload: payload as Prisma.InputJsonValue,
+          },
+        });
+
+        await this.prisma.clinicmindsRawRecord.update({
+          where: { id: row.id },
+          data: {
+            stagingStatus: ClinicmindsStagingStatus.STAGING_DONE,
+            stagedAt: new Date(),
+          },
+        });
+
+        staged += 1;
+      } catch (error) {
+        await this.prisma.clinicmindsRawRecord.update({
+          where: { id: row.id },
+          data: {
+            stagingStatus: ClinicmindsStagingStatus.STAGING_ERROR,
+          },
+        });
+
+        failed += 1;
+        this.logger.error(
+          `Failed to stage cmQuote raw row ${String(row.id)}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
+      }
+    }
+
+    const runStatus = failed > 0 ? ClinicmindsStageRunStatus.FAILED : ClinicmindsStageRunStatus.SUCCEEDED;
+
+    await this.prisma.clinicmindsStageRun.update({
+      where: { id: stageRun.id },
+      data: {
+        completedAt: new Date(),
+        status: runStatus,
+        scannedCount: rows.length,
+        stagedCount: staged,
+        failedCount: failed,
+        error: failed > 0 ? 'One or more raw rows failed during staging.' : null,
+      },
+    });
+
+    return {
+      stageRunId: String(stageRun.id),
+      entityKey: 'cmQuote',
       scanned: rows.length,
       staged,
       failed,
@@ -979,6 +1273,17 @@ export class ClinicmindsStageService {
     return undefined;
   }
 
+  private findFirstNestedValue(value: unknown, targetKeys: string[]): unknown {
+    for (const key of targetKeys) {
+      const found = this.findNestedValue(value, key);
+      if (found !== undefined) {
+        return found;
+      }
+    }
+
+    return undefined;
+  }
+
   private parseTreatmentLabel(label: string): ParsedTreatmentLabel | null {
     const externalId = label.trim();
     if (!externalId) {
@@ -1021,6 +1326,33 @@ export class ClinicmindsStageService {
 
     const details = [brand, unit].filter((value): value is string => Boolean(value && value.trim()));
     return details.length > 0 ? `${treatment} (${details.join('; ')})` : treatment;
+  }
+
+  private buildRecordKey(input: {
+    payload: Record<string, unknown>;
+    patientNumber: string | null;
+    recordDate: string | null;
+    recordType: string | null;
+    treatmentCategory: string | null;
+    location: string | null;
+    user: string | null;
+  }): string {
+    const descriptive = [
+      input.patientNumber,
+      input.recordDate,
+      input.recordType,
+      input.treatmentCategory,
+      input.location,
+      input.user,
+    ]
+      .filter((value): value is string => Boolean(value && value.trim()))
+      .join('|');
+    const payloadHash = createHash('sha1')
+      .update(JSON.stringify(input.payload))
+      .digest('hex')
+      .slice(0, 16);
+
+    return descriptive ? `${descriptive}|${payloadHash}` : payloadHash;
   }
 
   private getConfiguredTreatmentLocationId(): number {

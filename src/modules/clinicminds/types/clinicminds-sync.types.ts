@@ -17,6 +17,7 @@ export interface ClinicmindsEntitySyncConfig {
   filtersFromSpec?: string[];
   notes?: string;
   enabled?: boolean;
+  implemented?: boolean;
   runStageAfterRawSync?: boolean;
   cursorStartDate?: string;
   staticParams?: Record<string, ClinicmindsSyncPrimitive | null | undefined>;

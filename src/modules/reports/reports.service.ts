@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 
 import { InvoiceAmountsReport } from './reports/invoice-amounts.report';
+import { QuotesReport } from './reports/quotes-report.report';
 import {
   ReportDefinition,
   ReportDetailSection,
@@ -13,9 +14,12 @@ import {
 export class ReportsService {
   private readonly reports: ReportImplementation[];
 
-  constructor(private readonly invoiceAmountsReport: InvoiceAmountsReport) {
+  constructor(
+    private readonly invoiceAmountsReport: InvoiceAmountsReport,
+    private readonly quotesReport: QuotesReport,
+  ) {
     // Keep the registry explicit and simple so new reports are easy to add later.
-    this.reports = [this.invoiceAmountsReport];
+    this.reports = [this.invoiceAmountsReport, this.quotesReport];
   }
 
   listDefinitions(): ReportDefinition[] {

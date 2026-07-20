@@ -1,0 +1,63 @@
+v@baseUrl = http://localhost:3020
+@recordsDateFrom = 2026-07-01
+@recordsDateTo = 2026-07-16
+@recordsFormat = json
+@recordsSaveLog = true
+@recordsSyncRunsLimit = 20
+@recordsRawLimit = 20
+@recordsStageLimit = 20
+
+### Records request with editable record-date filter
+GET {{baseUrl}}/clinicminds/records?date_from={{recordsDateFrom}}&date_to={{recordsDateTo}}&format={{recordsFormat}}&saveLog={{recordsSaveLog}}
+Accept: application/json
+
+### Run records sync with automatic date_window catch-up logic from 2026-01-01
+POST {{baseUrl}}/clinicminds/sync/cmRecord
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{recordsFormat}}",
+  "saveRequestLog": true
+}
+
+### Run records sync with explicit record-date filter
+POST {{baseUrl}}/clinicminds/sync/cmRecord
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{recordsFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "date_from": "{{recordsDateFrom}}",
+    "date_to": "{{recordsDateTo}}"
+  }
+}
+
+### List record sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmRecord&limit={{recordsSyncRunsLimit}}
+Accept: application/json
+
+### List record raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmRecord&limit={{recordsRawLimit}}
+Accept: application/json
+
+### List record raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmRecord&stagingStatus=STAGING_NEEDED&limit={{recordsRawLimit}}
+Accept: application/json
+
+### Run record stage conversion
+POST {{baseUrl}}/clinicminds/stage/cmRecord
+Content-Type: application/json
+Accept: application/json
+
+{}
+
+### List record stage runs
+GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmRecord&limit={{recordsStageLimit}}
+Accept: application/json
+
+### List staged record rows
+GET {{baseUrl}}/clinicminds/stage/records?limit={{recordsStageLimit}}
+Accept: application/json

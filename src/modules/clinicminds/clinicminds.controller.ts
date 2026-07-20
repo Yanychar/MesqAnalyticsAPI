@@ -4,6 +4,8 @@ import { ClinicmindsAppointmentsService } from './clinicminds-appointments.servi
 import { ClinicmindsInvoicesService } from './clinicminds-invoices.service';
 import { ClinicmindsStageService } from './clinicminds-stage.service';
 import { ClinicmindsProductSalesService } from './clinicminds-product-sales.service';
+import { ClinicmindsRecordsService } from './clinicminds-records.service';
+import { ClinicmindsQuotesService } from './clinicminds-quotes.service';
 import { ClinicmindsTreatmentMaterialStockService } from './clinicminds-treatment-material-stock.service';
 import { ClinicmindsOnlineBookingsService } from './clinicminds-online-bookings.service';
 import { ClinicmindsClient } from './clinicminds.client';
@@ -29,6 +31,8 @@ export class ClinicmindsController {
     private readonly clinicmindsInvoicesService: ClinicmindsInvoicesService,
     private readonly clinicmindsStageService: ClinicmindsStageService,
     private readonly clinicmindsProductSalesService: ClinicmindsProductSalesService,
+    private readonly clinicmindsRecordsService: ClinicmindsRecordsService,
+    private readonly clinicmindsQuotesService: ClinicmindsQuotesService,
     private readonly clinicmindsTreatmentMaterialStockService: ClinicmindsTreatmentMaterialStockService,
     private readonly clinicmindsOnlineBookingsService: ClinicmindsOnlineBookingsService,
     private readonly clinicmindsRequestLogService: ClinicmindsRequestLogService,
@@ -188,6 +192,30 @@ export class ClinicmindsController {
     return this.clinicmindsProductSalesService.fetchProductSales(params, format, saveLog);
   }
 
+  @Get('records')
+  async getRecords(@Query() query: Record<string, string | undefined>) {
+    const control = query as Record<string, string | undefined>;
+    const format = control.format as ClinicmindsRequestQueryDto['format'];
+    const saveLog = control.saveLog !== 'false';
+    const params = Object.fromEntries(
+      Object.entries(query).filter(([key]) => key !== 'format' && key !== 'saveLog'),
+    );
+
+    return this.clinicmindsRecordsService.fetchRecords(params, format, saveLog);
+  }
+
+  @Get('quotes')
+  async getQuotes(@Query() query: Record<string, string | undefined>) {
+    const control = query as Record<string, string | undefined>;
+    const format = control.format as ClinicmindsRequestQueryDto['format'];
+    const saveLog = control.saveLog !== 'false';
+    const params = Object.fromEntries(
+      Object.entries(query).filter(([key]) => key !== 'format' && key !== 'saveLog'),
+    );
+
+    return this.clinicmindsQuotesService.fetchQuotes(params, format, saveLog);
+  }
+
   @Get('treatment-material-stock')
   async getTreatmentMaterialStock(@Query() query: Record<string, string | undefined>) {
     const control = query as Record<string, string | undefined>;
@@ -217,6 +245,16 @@ export class ClinicmindsController {
   @Get('stage/treatments')
   listStagedTreatments(@Query('limit') limit?: string) {
     return this.clinicmindsStageService.listTreatments(limit ? Number(limit) : undefined);
+  }
+
+  @Get('stage/records')
+  listStagedRecords(@Query('limit') limit?: string) {
+    return this.clinicmindsStageService.listRecords(limit ? Number(limit) : undefined);
+  }
+
+  @Get('stage/quotes')
+  listStagedQuotes(@Query('limit') limit?: string) {
+    return this.clinicmindsStageService.listQuotes(limit ? Number(limit) : undefined);
   }
 
   @Post('stage/:entityKey')

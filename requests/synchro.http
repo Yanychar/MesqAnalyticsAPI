@@ -37,7 +37,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "entityKeys": ["cmInvoice", "cmProductSale", "cmTreatment"],
+  "entityKeys": ["cmInvoice", "cmRecord", "cmQuote", "cmProductSale", "cmMaterialTreatment"],
   "continueOnError": {{syncContinueOnError}},
   "format": "{{syncFormat}}",
   "saveRequestLog": {{syncSaveRequestLog}},

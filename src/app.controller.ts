@@ -128,6 +128,8 @@ export class AppController {
         { method: 'GET', path: '/health/mysql', description: 'Checks the MySQL connection with SELECT 1.' },
         { method: 'GET', path: '/clinicminds/spec', description: 'Returns the loaded Clinicminds API spec summary.' },
         { method: 'GET', path: '/clinicminds/patients', description: 'Requests Clinicminds patients with query filters and logs patient count.' },
+        { method: 'GET', path: '/clinicminds/records', description: 'Requests Clinicminds records and logs record count.' },
+        { method: 'GET', path: '/clinicminds/quotes', description: 'Requests Clinicminds quotes and logs quote count.' },
         { method: 'GET', path: '/clinicminds/treatment-material-stock', description: 'Requests Clinicminds treatment material stock snapshot for one configured location.' },
         { method: 'GET', path: '/clinicminds/endpoints', description: 'Lists supported Clinicminds operations from the local OpenAPI spec.' },
         { method: 'GET', path: '/clinicminds/endpoints/:operationId', description: 'Returns metadata for a single Clinicminds operation.' },
@@ -137,7 +139,9 @@ export class AppController {
         { method: 'GET', path: '/clinicminds/stage/entities', description: 'Lists implemented stage entities.' },
         { method: 'GET', path: '/clinicminds/stage/runs', description: 'Lists stage conversion runs stored in MySQL.' },
         { method: 'GET', path: '/clinicminds/stage/patients', description: 'Lists staged patient rows from the cm_patient table.' },
+        { method: 'GET', path: '/clinicminds/stage/records', description: 'Lists staged record rows from the cm_record table.' },
         { method: 'GET', path: '/clinicminds/stage/invoices', description: 'Lists staged invoice rows together with pivot child rows.' },
+        { method: 'GET', path: '/clinicminds/stage/quotes', description: 'Lists staged quote rows from the cm_quote table.' },
         { method: 'GET', path: '/clinicminds/stage/treatments', description: 'Lists staged treatment rows sourced from Clinicminds material stock and future treatment sources.' },
         { method: 'POST', path: '/clinicminds/stage/:entityKey', description: 'Runs stage conversion for one entity.' },
         { method: 'POST', path: '/clinicminds/sync/:entityKey', description: 'Runs config-driven sync for one entity and stores raw JSON rows.' },
@@ -199,6 +203,7 @@ export class AppController {
     .stats-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
     .summary-table-wrap { border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: #fff; }
     .summary-table th, .summary-table td { white-space: normal; }
+    .summary-separator-row td { background: #e8eef6; height: 12px; padding: 0; border-bottom: 1px solid var(--border); }
     .summary-table th:nth-child(2), .summary-table th:nth-child(3), .summary-table td:nth-child(2), .summary-table td:nth-child(3) { text-align: right; }
     .details-panel[hidden] { display: none; }
     .details-back-row { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
@@ -207,6 +212,7 @@ export class AppController {
     .details-section-row td { background: #e5e7eb; font-weight: 700; color: #334155; }
     .report-row-clickable { cursor: pointer; }
     .report-row-clickable:hover td { background: #f8fbff; }
+    .report-group-row td { background: #e8eef6; color: #1e293b; font-weight: 700; letter-spacing: 0.02em; }
     .report-tabs { display: flex; gap: 10px; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
     .report-tab { border: 1px solid var(--border); background: #fff; color: var(--muted); border-radius: 999px; padding: 9px 14px; cursor: pointer; font-size: 0.92rem; }
     .report-tab.active { background: #1f6feb; border-color: #1f6feb; color: #fff; }
@@ -506,10 +512,15 @@ export class AppController {
         return;
       }
 
-      invoiceDetailsTitle.textContent = 'Invoice details: ' + rowKey;
+      invoiceDetailsTitle.textContent = selectedReport?.key === 'quotes-report'
+        ? 'Детали квоты: ' + rowKey
+        : 'Invoice details: ' + rowKey;
       invoiceDetailsBody.innerHTML = sections.map((section) => {
         const headerRow = '<tr class="details-section-row"><td colspan="' + section.columns.length + '">' + escapeHtml(section.title) + '</td></tr>';
-        const columnHeaderRow = '<tr>' + section.columns.map((column) => '<th>' + escapeHtml(column) + '</th>').join('') + '</tr>';
+        const showColumnHeader = !(selectedReport?.key === 'quotes-report' && section.columns.length === 2 && section.columns[0] === 'Поле' && section.columns[1] === 'Значение');
+        const columnHeaderRow = showColumnHeader
+          ? '<tr>' + section.columns.map((column) => '<th>' + escapeHtml(column) + '</th>').join('') + '</tr>'
+          : '';
         const rows = (section.rows || []).map((row) => '<tr>' + row.columns.map((value, index) => '<td>' + escapeHtml(formatDetailCellValue(section, index, value)) + '</td>').join('') + '</tr>').join('');
         return headerRow + columnHeaderRow + rows;
       }).join('');
@@ -686,26 +697,25 @@ export class AppController {
         number: null,
         amount: item.value,
       }));
-      reportSummary.innerHTML = summaryRows.map((item) => [
-        '<tr>',
-        '<td>' + escapeHtml(item.label) + '</td>',
-        '<td>' + escapeHtml(item.number ?? '') + '</td>',
-        '<td>' + escapeHtml(formatCurrencyValue(item.amount)) + '</td>',
-        '</tr>'
-      ].join('')).join('');
+      reportSummary.innerHTML = summaryRows.map((item) => {
+        if (item.label === '__separator__') {
+          return '<tr class="summary-separator-row"><td colspan="3"></td></tr>';
+        }
+        return [
+          '<tr>',
+          '<td>' + escapeHtml(item.label) + '</td>',
+          '<td>' + escapeHtml(item.number ?? '') + '</td>',
+          '<td>' + escapeHtml(formatCurrencyValue(item.amount)) + '</td>',
+          '</tr>'
+        ].join('');
+      }).join('');
 
       reportHead.innerHTML = '<tr>' + result.columns.map((column) => '<th>' + escapeHtml(column.label) + '</th>').join('') + '</tr>';
 
       if (!result.rows || result.rows.length === 0) {
         reportBody.innerHTML = '<tr><td colspan="' + Math.max(result.columns.length, 1) + '" class="muted">No rows returned for the selected filters.</td></tr>';
       } else {
-        reportBody.innerHTML = result.rows.map((row) => {
-          const rowKey = row.invoiceNumber;
-          const isClickable = selectedReport?.key === 'invoice-amounts' && selectedReportDetails[rowKey];
-          return '<tr' + (isClickable ? ' class="report-row-clickable" data-report-detail-key="' + escapeHtml(rowKey) + '"' : '') + '>' + result.columns
-            .map((column) => '<td>' + escapeHtml(formatReportCellValue(column, row[column.key])) + '</td>')
-            .join('') + '</tr>';
-        }).join('');
+        reportBody.innerHTML = renderReportRows(result);
 
         Array.from(reportBody.querySelectorAll('[data-report-detail-key]')).forEach((rowElement) => {
           rowElement.addEventListener('click', () => openInvoiceDetails(rowElement.dataset.reportDetailKey));
@@ -713,6 +723,42 @@ export class AppController {
       }
 
       reportGenerated.textContent = 'Generated at ' + new Date(result.generatedAt).toLocaleString();
+    }
+
+    function renderReportRows(result) {
+      const columnCount = Math.max(result.columns.length, 1);
+      const getRowDetailKey = (row) => {
+        if (selectedReport?.key === 'invoice-amounts') {
+          return row.invoiceNumber;
+        }
+        if (selectedReport?.key === 'quotes-report') {
+          return row.quoteNumber;
+        }
+        return row.id || row.key || null;
+      };
+      const renderDataRow = (row) => {
+        const rowKey = getRowDetailKey(row);
+        const isClickable = Boolean(rowKey && selectedReportDetails[rowKey]);
+        return '<tr' + (isClickable ? ' class="report-row-clickable" data-report-detail-key="' + escapeHtml(rowKey) + '"' : '') + '>' + result.columns
+          .map((column) => '<td>' + escapeHtml(formatReportCellValue(column, row[column.key])) + '</td>')
+          .join('') + '</tr>';
+      };
+
+      if (selectedReport?.key !== 'quotes-report') {
+        return result.rows.map((row) => renderDataRow(row)).join('');
+      }
+
+      let currentCreator = null;
+      return result.rows.map((row) => {
+        const parts = [];
+        const creator = row.creator || 'Создатель не указан';
+        if (creator !== currentCreator) {
+          currentCreator = creator;
+          parts.push('<tr class="report-group-row"><td colspan="' + columnCount + '">' + escapeHtml(creator) + '</td></tr>');
+        }
+        parts.push(renderDataRow(row));
+        return parts.join('');
+      }).join('');
     }
 
     function formatCurrencyValue(value) {

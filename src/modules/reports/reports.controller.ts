@@ -42,7 +42,30 @@ export class ReportsController {
     );
 
     response.setHeader('Content-Type', file.contentType);
-    response.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    response.setHeader(
+      'Content-Disposition',
+      this.buildDownloadDisposition(file.filename),
+    );
     response.send(file.body);
+  }
+
+  private buildDownloadDisposition(filename: string): string {
+    const extensionMatch = filename.match(/(\.[A-Za-z0-9]+)$/);
+    const extension = extensionMatch?.[1] ?? '';
+    const baseName = extension ? filename.slice(0, -extension.length) : filename;
+
+    const asciiBaseName = baseName
+      .normalize('NFKD')
+      .replace(/[^\x00-\x7F]/g, '')
+      .replace(/[\r\n"]/g, '')
+      .replace(/\s+/g, '_')
+      .replace(/[^A-Za-z0-9_-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^[_\.]+|[_\.]+$/g, '');
+
+    const safeFallback = `${asciiBaseName || 'report'}${extension}`;
+    const encodedFilename = encodeURIComponent(filename);
+
+    return `attachment; filename="${safeFallback}"; filename*=UTF-8''${encodedFilename}`;
   }
 }

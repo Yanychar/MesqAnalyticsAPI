@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:3020
+@quoteDateFrom = 2026-01-01
+@quoteDateTo = 2026-07-16
+@quoteStatus = open
+@quoteFormat = json
+@quoteSaveLog = true
+@quoteSyncRunsLimit = 20
+@quoteRawLimit = 20
+@quoteStageLimit = 20
+
+### Quote request with editable date and status filters
+GET {{baseUrl}}/clinicminds/quotes?date_from={{quoteDateFrom}}&date_to={{quoteDateTo}}&quote_status={{quoteStatus}}&format={{quoteFormat}}&saveLog={{quoteSaveLog}}
+Accept: application/json
+
+### Run quote sync with config-driven full nightly refresh logic
+POST {{baseUrl}}/clinicminds/sync/cmQuote
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{quoteFormat}}",
+  "saveRequestLog": true
+}
+
+### Run quote sync with explicit date range
+POST {{baseUrl}}/clinicminds/sync/cmQuote
+Content-Type: application/json
+Accept: application/json
+
+{
+  "format": "{{quoteFormat}}",
+  "saveRequestLog": true,
+  "params": {
+    "date_from": "{{quoteDateFrom}}",
+    "date_to": "{{quoteDateTo}}",
+    "quote_status": "{{quoteStatus}}"
+  }
+}
+
+### List quote sync runs
+GET {{baseUrl}}/clinicminds/sync/runs?entityKey=cmQuote&limit={{quoteSyncRunsLimit}}
+Accept: application/json
+
+### List quote raw rows
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmQuote&limit={{quoteRawLimit}}
+Accept: application/json
+
+### List quote raw rows that need staging
+GET {{baseUrl}}/clinicminds/raw?entityKey=cmQuote&stagingStatus=STAGING_NEEDED&limit={{quoteRawLimit}}
+Accept: application/json
+
+### Run quote stage conversion
+POST {{baseUrl}}/clinicminds/stage/cmQuote
+Content-Type: application/json
+Accept: application/json
+
+{}
+
+### List quote stage runs
+GET {{baseUrl}}/clinicminds/stage/runs?entityKey=cmQuote&limit={{quoteStageLimit}}
+Accept: application/json
+
+### List staged quote rows
+GET {{baseUrl}}/clinicminds/stage/quotes?limit={{quoteStageLimit}}
+Accept: application/json

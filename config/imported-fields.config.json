@@ -1670,5 +1670,251 @@
         "includeInAiContext": true
       }
     ]
+  },
+  "cmQuote": {
+    "targetTable": "cm_quote",
+    "notes": "Quotes extract from Clinicminds Finance reports.",
+    "fields": [
+      {
+        "key": "quoteNumber",
+        "sourceColumn": "Quote number",
+        "description": "Quote number from Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "quoteDate",
+        "sourceColumn": "Date",
+        "description": "Quote date from the report.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "quoteStatus",
+        "sourceColumn": "Status",
+        "description": "Quote status shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the quote report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patient",
+        "sourceColumn": "Patient",
+        "description": "Patient name from the quote report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "upcomingTreatmentDate",
+        "sourceColumn": "Upcoming treatment date",
+        "description": "Upcoming treatment date attached to the quote.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatmentCategory",
+        "sourceColumn": "Treatment category",
+        "description": "Treatment category attached to the quote.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the quote report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "outstanding",
+        "sourceColumn": "Outstanding",
+        "description": "Outstanding amount from the quote report.",
+        "dataType": "number",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      }
+    ]
+  },
+  "cmRecord": {
+    "targetTable": "cm_record",
+    "notes": "Clinicminds generic records extract with patient and record metadata.",
+    "fields": [
+      {
+        "key": "patientNumber",
+        "sourceColumn": "Patient number",
+        "description": "Clinicminds patient number from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "nationalIdentificationNumber",
+        "sourceColumn": "National identification number",
+        "description": "National identification number shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "sex",
+        "sourceColumn": "Sex",
+        "description": "Sex value from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "patient",
+        "sourceColumn": "Patient",
+        "description": "Patient name from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "dateOfBirth",
+        "sourceColumn": "Date of birth",
+        "description": "Patient date of birth shown by Clinicminds.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "address",
+        "sourceColumn": "Address",
+        "description": "Address from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "emailAddress",
+        "sourceColumn": "Email address",
+        "description": "Email address from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "phoneNumber",
+        "sourceColumn": "Phone number",
+        "description": "Phone number from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "mobileNumber",
+        "sourceColumn": "Mobile number",
+        "description": "Mobile number from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "referral",
+        "sourceColumn": "Referral",
+        "description": "Referral shown by Clinicminds for the patient.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "recordDate",
+        "sourceColumn": "Date",
+        "description": "Record date from the Clinicminds records report.",
+        "dataType": "date",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "recordType",
+        "sourceColumn": "Type",
+        "description": "Record type from Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "treatmentCategory",
+        "sourceColumn": "Treatment categories",
+        "description": "Treatment categories attached to the record.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "location",
+        "sourceColumn": "Location",
+        "description": "Clinicminds location shown by the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "user",
+        "sourceColumn": "User",
+        "description": "Clinicminds user attached to the record.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "diagnoses",
+        "sourceColumn": "Diagnoses",
+        "description": "Diagnoses from the record report.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      },
+      {
+        "key": "asaClassification",
+        "sourceColumn": "ASA classification",
+        "description": "ASA classification shown by Clinicminds.",
+        "dataType": "string",
+        "isColumn": true,
+        "filterable": true,
+        "includeInAiContext": true
+      }
+    ]
   }
 }

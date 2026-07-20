@@ -111,6 +111,59 @@ model CmPatient {
   @@index([lastName, firstName])
 }
 
+
+model CmQuote {
+  id                    BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  lastRawRecordId       BigInt?  @unique @db.UnsignedBigInt
+  entityKey             String   @default("cmQuote")
+  externalId            String?
+  quoteNumber           String   @unique
+  patientNumber         String?
+  quoteDate             String?
+  validUntil            String?
+  location              String?
+  user                  String?
+  treatmentCategory     String?
+  upcomingTreatmentDate String?
+  quoteStatus           String?
+  totalInclTaxes        Decimal? @db.Decimal(12, 2)
+  totalExclTaxes        Decimal? @db.Decimal(12, 2)
+  outstanding           Decimal? @db.Decimal(12, 2)
+  payload               Json
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([quoteDate])
+  @@index([patientNumber, quoteDate])
+  @@index([quoteStatus, quoteDate])
+  @@index([upcomingTreatmentDate])
+}
+
+
+model CmRecord {
+  id                BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  lastRawRecordId   BigInt?  @unique @db.UnsignedBigInt
+  entityKey         String   @default("cmRecord")
+  externalId        String?
+  recordKey         String   @unique
+  patientNumber     String?
+  recordDate        String?
+  recordType        String?
+  treatmentCategory String?
+  location          String?
+  user              String?
+  diagnoses         String?
+  asaClassification String?
+  payload           Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([patientNumber, recordDate])
+  @@index([recordType, recordDate])
+  @@index([user, recordDate])
+  @@index([location, recordDate])
+}
+
 model CmInvoice {
   id                           BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
   lastRawRecordId              BigInt?                   @unique @db.UnsignedBigInt
@@ -118,12 +171,6 @@ model CmInvoice {
   externalId                   String?
   invoiceNumber                String                    @unique
   patientNumber                String?
-  nationalIdentificationNumber String?
-  address                      String?
-  emailAddress                 String?
-  phoneNumber                  String?
-  mobileNumber                 String?
-  referral                     String?
   invoiceDate                  String?
   dueDate                      String?
   location                     String?

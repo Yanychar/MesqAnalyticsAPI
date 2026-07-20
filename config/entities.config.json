@@ -34,7 +34,8 @@
         "dateOfBirth"
       ]
     ],
-    "runStageAfterRawSync": true
+    "runStageAfterRawSync": true,
+    "implemented": true
   },
   {
     "key": "cmAppointment",
@@ -79,7 +80,8 @@
         "bookingDate"
       ]
     ],
-    "runStageAfterRawSync": false
+    "runStageAfterRawSync": false,
+    "implemented": true
   },
   {
     "key": "cmOnlineBooking",
@@ -124,7 +126,8 @@
         "bookingDate"
       ]
     ],
-    "runStageAfterRawSync": false
+    "runStageAfterRawSync": false,
+    "implemented": true
   },
   {
     "key": "cmInvoice",
@@ -170,7 +173,8 @@
         "invoiceDate"
       ]
     ],
-    "runStageAfterRawSync": true
+    "runStageAfterRawSync": true,
+    "implemented": true
   },
   {
     "key": "cmProductSale",
@@ -217,7 +221,107 @@
         "saleDate"
       ]
     ],
-    "runStageAfterRawSync": false
+    "runStageAfterRawSync": false,
+    "implemented": true
+  },
+  {
+    "key": "cmQuote",
+    "label": "CM Quote",
+    "endpoint": "/api/analytics/quotes",
+    "targetTable": "cm_quote",
+    "cron": "0 2 * * *",
+    "mode": "full_replace",
+    "externalIdField": "quoteNumber",
+    "readStrategy": "full_replace",
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "quote_status",
+      "location_id"
+    ],
+    "notes": "Quote extract from Clinicminds finance reports. Sync runs as a full nightly refresh at 02:00 and stages the latest quote snapshot into cm_quote.",
+    "enabled": true,
+    "implemented": true,
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "stagingStatus"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber"
+      ],
+      [
+        "patientNumber",
+        "quoteDate"
+      ],
+      [
+        "quoteStatus",
+        "quoteDate"
+      ],
+      [
+        "upcomingTreatmentDate"
+      ]
+    ],
+    "runStageAfterRawSync": true
+  },
+  {
+    "key": "cmRecord",
+    "label": "CM Record",
+    "endpoint": "/api/analytics/records",
+    "targetTable": "cm_record",
+    "cron": "15 2 * * *",
+    "mode": "incremental",
+    "externalIdField": "patientNumber",
+    "readStrategy": "date_window",
+    "rangeFromParam": "date_from",
+    "rangeToParam": "date_to",
+    "cursorStartDate": "2026-01-01",
+    "filtersFromSpec": [
+      "format",
+      "date_from",
+      "date_to",
+      "location_id",
+      "record_type",
+      "treatment_type_id",
+      "user_id"
+    ],
+    "notes": "Clinicminds records extract. Sync continues by record date from 2026-01-01 up to yesterday and stages generic patient record rows into cm_record.",
+    "enabled": true,
+    "implemented": true,
+    "rawTableIndexes": [
+      [
+        "entityKey"
+      ],
+      [
+        "entityKey",
+        "stagingStatus"
+      ]
+    ],
+    "normalizedIndexes": [
+      [
+        "patientNumber",
+        "recordDate"
+      ],
+      [
+        "recordType",
+        "recordDate"
+      ],
+      [
+        "user",
+        "recordDate"
+      ],
+      [
+        "location",
+        "recordDate"
+      ]
+    ],
+    "runStageAfterRawSync": true
   },
   {
     "key": "cmTreatment",
@@ -265,7 +369,8 @@
         "treatmentDate"
       ]
     ],
-    "runStageAfterRawSync": false
+    "runStageAfterRawSync": false,
+    "implemented": false
   },
   {
     "key": "cmMaterialTreatment",
@@ -305,6 +410,7 @@
       "brand",
       "unit"
     ],
-    "runStageAfterRawSync": true
+    "runStageAfterRawSync": true,
+    "implemented": true
   }
 ]
